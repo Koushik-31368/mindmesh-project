@@ -46,6 +46,9 @@ function createAiService() {
         },
         securityVerify(evidence) {
             return withFallback((service, pageEvidence) => service.securityVerify(pageEvidence), evidence);
+        },
+        privacySummary(policyText) {
+            return withFallback((service, text) => service.privacySummary(text), policyText);
         }
     };
 }

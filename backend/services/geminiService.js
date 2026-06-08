@@ -167,10 +167,47 @@ Respond ONLY in JSON:
         }
     }
 
+    async function privacySummary(policyText) {
+        assertClient();
+
+        const prompt = `
+Analyze this privacy policy.
+
+Provide:
+
+1. Data Collected
+2. Data Sharing Practices
+3. Data Retention
+4. User Rights
+5. Risk Level
+
+Keep response under 150 words.
+
+Policy:
+${policyText}
+`;
+
+        try {
+            const result = await client.models.generateContent({
+                model,
+                contents: prompt
+            });
+
+            return result?.text;
+        } catch (error) {
+            throw normalizeProviderError(
+                error,
+                "Gemini",
+                "Failed to generate privacy summary."
+            );
+        }
+    }
+
     return {
         ask,
         summarize,
-        securityVerify
+        securityVerify,
+        privacySummary
     };
 }
 

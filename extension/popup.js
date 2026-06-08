@@ -297,3 +297,164 @@ ${data.aiVerification.explanation}`;
 
     }
 });
+
+document
+.getElementById("privacyBtn")
+.addEventListener("click", async () => {
+
+    const privacyResult =
+        document.getElementById(
+            "privacyResult"
+        );
+    const policyInput =
+        document.getElementById(
+            "policyInput"
+        );
+    const policyText =
+        policyInput
+            ? policyInput.value
+            : "";
+
+    privacyResult.innerText =
+        "Analyzing privacy...";
+
+    try {
+
+        const [tab] =
+            await chrome.tabs.query({
+                active: true,
+                currentWindow: true
+            });
+
+        chrome.tabs.sendMessage(
+            tab.id,
+            {
+                action:
+                    "getPageContent"
+            },
+            async (response) => {
+
+                if (!response) {
+
+                    privacyResult.innerText =
+                        "Could not read page content.";
+
+                    return;
+                }
+
+                try {
+
+                    const res =
+                        await fetch(
+                            "http://localhost:3000/api/privacy/analyze",
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type":
+                                    "application/json"
+                                },
+                                body: JSON.stringify({
+                                    html:
+                                        response.html,
+                                    url:
+                                        response.url,
+                                    policyText:
+                                        policyText
+                                })
+                            }
+                        );
+
+                    const data =
+                        await res.json();
+
+                    const labels = {
+                        email: "Email",
+                        phone: "Phone",
+                        password: "Password",
+                        address: "Address",
+                        dob: "DOB",
+                        location: "Location"
+                    };
+
+                    const dataCollectedList =
+                        Object.keys(labels)
+                        .map(key => {
+                            const icon =
+                                data.dataCollected[key]
+                                    ? "✓"
+                                    : "✗";
+
+                            return `${icon} ${labels[key]}`;
+                        })
+                        .join("\n");
+
+                    const trackerList =
+                        data.trackers.trackers.length > 0
+                            ? data.trackers.trackers
+                                .map(t => `✓ ${t}`)
+                                .join("\n")
+                            : "None";
+
+                    const policyLabels = {
+                        collectsEmail: "Collects Email",
+                        collectsPhone: "Collects Phone",
+                        collectsLocation: "Collects Location",
+                        collectsAddress: "Collects Address",
+                        sharesWithThirdParties: "Shares with Third Parties",
+                        retentionMentioned: "Retention Mentioned"
+                    };
+
+                    const policyList = data.policy
+                        ? Object.keys(policyLabels)
+                            .map(key => {
+                                const icon =
+                                    data.policy[key]
+                                        ? "✓"
+                                        : "✗";
+
+                                return `${icon} ${policyLabels[key]}`;
+                            })
+                            .join("\n")
+                        : "No policy analyzed";
+
+                    const policyHeader = data.autoFetched
+                        ? "Policy Analysis (Auto-Fetched):"
+                        : "Policy Analysis:";
+
+                    let output =
+`🔒 Privacy Analysis
+
+Risk Level: ${data.risk.level}
+Risk Score: ${data.risk.score}
+
+Data Collected:
+${dataCollectedList}
+
+Trackers:
+${trackerList}
+
+${policyHeader}
+${policyList}`;
+
+                    if (data.aiSummary) {
+                        output += `\n\n🔒 Privacy Summary\n\n${data.aiSummary}`;
+                    }
+
+                    privacyResult.innerText = output;
+
+                } catch (error) {
+
+                    privacyResult.innerText =
+                        "Could not analyze privacy.";
+
+                }
+            }
+        );
+
+    } catch (error) {
+
+        privacyResult.innerText =
+            "Unexpected error occurred.";
+
+    }
+});

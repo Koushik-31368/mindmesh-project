@@ -238,10 +238,52 @@ Respond ONLY in JSON:
         }
     }
 
+    async function privacySummary(policyText) {
+        assertClient();
+
+        try {
+            const response =
+                await client.chat.completions.create({
+                    model: "llama-3.3-70b-versatile",
+                    messages: [
+                        {
+                            role: "system",
+                            content:
+`You are a privacy analyst.
+
+Analyze the privacy policy and provide:
+
+1. Data Collected
+2. Data Sharing Practices
+3. Data Retention
+4. User Rights
+5. Risk Level
+
+Keep the response under 150 words.`
+                        },
+                        {
+                            role: "user",
+                            content: policyText
+                        }
+                    ],
+                    temperature: 0.2
+                });
+
+            return response.choices[0].message.content;
+        } catch (error) {
+            throw normalizeProviderError(
+                error,
+                "Groq",
+                "Failed to generate privacy summary."
+            );
+        }
+    }
+
     return {
         ask,
         summarize,
-        securityVerify
+        securityVerify,
+        privacySummary
     };
 }
 
