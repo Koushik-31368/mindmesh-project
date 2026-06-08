@@ -2,80 +2,63 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const { GoogleGenAI } = require("@google/genai");
+const { createAiService } = require("./services/providerFactory");
+const memoryRoutes = require("./routes/memoryRoutes");
 
 const app = express();
-const port = 3000;
-const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY
-});
+const port = process.env.PORT || 3000;
+
+// The selected provider is hidden behind a factory so the route handlers stay stable.
+const aiService = createAiService();
 
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
+app.use("/api/memory", memoryRoutes);
 
-function cleanText(text) {
-    return (text || "").replace(/\s+/g, " ").trim();
+// The route layer only formats responses and never depends on provider internals.
+function sendFriendlyAiError(res, responseKey, error, fallbackMessage) {
+    if (error?.allProvidersFailed) {
+        res.status(error?.statusCode || 503).json({
+            error: fallbackMessage
+        });
+
+        return;
+    }
+
+    res.status(error?.statusCode || 500).json({
+        [responseKey]: error?.userMessage || fallbackMessage
+    });
 }
 
 app.post("/summarize", async (req, res) => {
     try {
         const { text } = req.body || {};
 
-        const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
-            contents: `
-    Summarize the following webpage in 5-8 concise bullet points.
-
-    ${text}
-    `
-        });
+        // Summarization is now delegated to the active provider service.
+        const summary = await aiService.summarize(text);
 
         res.json({
-            summary: response.text
+            summary
         });
-
     } catch (error) {
         console.error(error);
-
-        res.status(500).json({
-            summary: "Failed to generate summary."
-        });
+        sendFriendlyAiError(res, "summary", error, "Failed to generate summary.");
     }
 });
 
 app.post("/ask", async (req, res) => {
     try {
+        const { text, question } = req.body || {};
 
-        const { text, question } = req.body;
-
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `
-You are answering questions about a webpage.
-
-WEBPAGE:
-${text}
-
-QUESTION:
-${question}
-
-Answer using only information
-from the webpage.
-`
-        });
+        // Question answering is also delegated to the active provider service.
+        const answer = await aiService.ask(text, question);
 
         res.json({
-            answer: response.text
+            answer
         });
-
     } catch (error) {
-
         console.error(error);
-
-        res.status(500).json({
-            answer: "Failed to answer."
-        });
-
+        sendFriendlyAiError(res, "answer", error, "Failed to answer.");
     }
 });
 

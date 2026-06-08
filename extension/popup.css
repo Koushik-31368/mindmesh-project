@@ -8,6 +8,11 @@ h1 {
     text-align: center;
 }
 
+h2 {
+    margin: 0 0 10px;
+    font-size: 16px;
+}
+
 button {
     width: 100%;
     padding: 10px;
@@ -25,9 +30,26 @@ input {
     margin-top: 10px;
 }
 
+#memoryAskBtn {
+    margin-top: 10px;
+}
+
 #result {
     margin-top: 15px;
     border: 1px solid #ddd;
     padding: 10px;
     min-height: 100px;
+}
+
+.memory-chat {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #ddd;
+}
+
+#memoryResult {
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    min-height: 80px;
 }

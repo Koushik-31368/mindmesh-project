@@ -136,3 +136,47 @@ document
 
     }
 });
+
+document
+.getElementById("memoryAskBtn")
+.addEventListener("click", async () => {
+
+    const memoryResultBox = document.getElementById("memoryResult");
+    const memoryQuestionInput = document.getElementById("memoryQuestionInput");
+    const question = memoryQuestionInput.value.trim();
+
+    if (!question) {
+        memoryResultBox.innerText = "Please enter a memory question.";
+        return;
+    }
+
+    memoryResultBox.innerText = "Searching saved memory...";
+
+    try {
+
+        const res = await fetch(
+            "http://localhost:3000/api/memory/chat",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                    "application/json"
+                },
+                body: JSON.stringify({
+                    question: question
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        memoryResultBox.innerText =
+            data.answer || "I could not find relevant information in saved memory.";
+
+    } catch (err) {
+
+        memoryResultBox.innerText =
+            "Could not ask memory. Is backend running on http://localhost:3000?";
+
+    }
+});
