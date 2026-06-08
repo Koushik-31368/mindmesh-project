@@ -196,9 +196,52 @@ Answer using only information from the webpage.
         }
     }
 
+    async function securityVerify(evidence) {
+        assertClient();
+
+        try {
+            const response =
+                await client.chat.completions.create({
+                    model,
+                    messages: [
+                        {
+                            role: "user",
+                            content: `
+You are a cybersecurity analyst.
+
+Analyze this webpage evidence.
+
+EVIDENCE:
+${JSON.stringify(evidence, null, 2)}
+
+Respond ONLY in JSON:
+
+{
+  "verdict":"safe|suspicious|dangerous",
+  "confidence":0,
+  "explanation":"short explanation"
+}
+`
+                        }
+                    ],
+                    temperature: 0.1
+                });
+
+            return response?.choices?.[0]?.message?.content;
+        }
+        catch (error) {
+            throw normalizeProviderError(
+                error,
+                "Groq",
+                "Failed security verification."
+            );
+        }
+    }
+
     return {
         ask,
-        summarize
+        summarize,
+        securityVerify
     };
 }
 

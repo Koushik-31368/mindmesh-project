@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const { createAiService } = require("./services/providerFactory");
 const memoryRoutes = require("./routes/memoryRoutes");
+const securityRoutes = require("./routes/securityRoutes");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ const aiService = createAiService();
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 app.use("/api/memory", memoryRoutes);
+app.use("/api/security", securityRoutes);
 
 // The route layer only formats responses and never depends on provider internals.
 function sendFriendlyAiError(res, responseKey, error, fallbackMessage) {

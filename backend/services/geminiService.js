@@ -129,9 +129,48 @@ Answer using only information from the webpage.
         }
     }
 
+    async function securityVerify(evidence) {
+        assertClient();
+
+        try {
+            const response =
+                await client.models.generateContent({
+                    model,
+                    contents: `
+You are a cybersecurity analyst.
+
+Analyze this webpage evidence.
+
+${JSON.stringify(evidence, null, 2)}
+
+Respond ONLY in JSON:
+
+{
+  "verdict":"safe|suspicious|dangerous",
+  "confidence":0,
+  "explanation":"short explanation"
+}
+`,
+                    config: {
+                        responseMimeType: "application/json"
+                    }
+                });
+
+            return response?.text;
+        }
+        catch (error) {
+            throw normalizeProviderError(
+                error,
+                "Gemini",
+                "Failed security verification."
+            );
+        }
+    }
+
     return {
         ask,
-        summarize
+        summarize,
+        securityVerify
     };
 }
 

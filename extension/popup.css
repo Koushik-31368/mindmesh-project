@@ -53,3 +53,17 @@ input {
     padding: 10px;
     min-height: 80px;
 }
+
+.security-section {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #ddd;
+}
+
+#securityResult {
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    min-height: 80px;
+    white-space: pre-wrap;
+}

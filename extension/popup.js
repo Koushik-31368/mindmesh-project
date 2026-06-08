@@ -180,3 +180,120 @@ document
 
     }
 });
+
+document
+.getElementById("securityBtn")
+.addEventListener("click", async () => {
+
+    const securityResult =
+        document.getElementById(
+            "securityResult"
+        );
+
+    securityResult.innerText =
+        "Analyzing page safety...";
+
+    try {
+
+        const [tab] =
+            await chrome.tabs.query({
+                active: true,
+                currentWindow: true
+            });
+
+        chrome.tabs.sendMessage(
+            tab.id,
+            {
+                action:
+                    "getPageContent"
+            },
+            async (response) => {
+
+                if (!response) {
+
+                    securityResult.innerText =
+                        "Could not read page content.";
+
+                    return;
+                }
+
+                try {
+
+                    const res =
+                        await fetch(
+                            "http://localhost:3000/api/security/analyze",
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type":
+                                    "application/json"
+                                },
+                                body: JSON.stringify({
+                                    url:
+                                        response.url,
+                                    pageText:
+                                        response.text,
+                                    html:
+                                        response.html
+                                })
+                            }
+                        );
+
+                    const data =
+                        await res.json();
+
+                    let emoji = "[SAFE]";
+
+                    if (
+                        data.riskLevel ===
+                        "suspicious"
+                    ) {
+                        emoji = "[SUSPICIOUS]";
+                    }
+
+                    if (
+                        data.riskLevel ===
+                        "dangerous"
+                    ) {
+                        emoji = "[DANGEROUS]";
+                    }
+
+                    let output =
+`${emoji} ${data.riskLevel.toUpperCase()}
+
+Risk Score: ${data.riskScore}
+
+Reasons:
+${data.reasons.length > 0 ? data.reasons.join("\n") : "None"}`;
+
+                    if (data.aiVerification) {
+                        output += `
+
+AI Verdict:
+${data.aiVerification.verdict}
+
+Confidence:
+${data.aiVerification.confidence}%
+
+Explanation:
+${data.aiVerification.explanation}`;
+                    }
+
+                    securityResult.innerText = output;
+
+                } catch (error) {
+
+                    securityResult.innerText =
+                        "Could not analyze page safety.";
+
+                }
+            }
+        );
+
+    } catch (error) {
+
+        securityResult.innerText =
+            "Unexpected error occurred.";
+
+    }
+});

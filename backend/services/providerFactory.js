@@ -43,6 +43,9 @@ function createAiService() {
         },
         ask(text, question) {
             return withFallback((service, pageText, userQuestion) => service.ask(pageText, userQuestion), text, question);
+        },
+        securityVerify(evidence) {
+            return withFallback((service, pageEvidence) => service.securityVerify(pageEvidence), evidence);
         }
     };
 }
