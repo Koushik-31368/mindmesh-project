@@ -128,12 +128,76 @@ function createGraphService() {
     }
 
     async function queryGraph(question) {
-        console.log("Graph query:", question);
+        const entities = await allQuery(
+            `
+            SELECT id, name
+            FROM entities
+            `
+        );
+
+        const matchedEntity = entities.find(entity =>
+            question.toLowerCase()
+                .includes(entity.name.toLowerCase())
+        );
+
+        if (!matchedEntity) {
+            return {
+                answer: "No matching entity found.",
+                relationships: []
+            };
+        }
+
+        const relationships = await allQuery(
+            `
+            SELECT
+                e1.name AS source,
+                r.relation,
+                e2.name AS target
+
+            FROM relationships r
+
+            JOIN entities e1
+            ON e1.id = r.source_entity_id
+
+            JOIN entities e2
+            ON e2.id = r.target_entity_id
+
+            WHERE e1.id = ?
+               OR e2.id = ?
+            `,
+            [
+                matchedEntity.id,
+                matchedEntity.id
+            ]
+        );
+
+        return {
+            entity: matchedEntity.name,
+            relationships
+        };
+    }
+
+    async function getStats() {
+        const entityCount = await getQuery(`
+            SELECT COUNT(*) AS count
+            FROM entities
+        `);
+
+        const relationshipCount = await getQuery(`
+            SELECT COUNT(*) AS count
+            FROM relationships
+        `);
+
+        return {
+            entities: entityCount.count,
+            relationships: relationshipCount.count
+        };
     }
 
     return {
         buildGraph,
-        queryGraph
+        queryGraph,
+        getStats
     };
 }
 
