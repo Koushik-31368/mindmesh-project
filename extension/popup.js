@@ -458,3 +458,63 @@ ${policyList}`;
 
     }
 });
+
+async function loadStats() {
+    const graphStats = document.getElementById("graphStats");
+    try {
+        const res = await fetch("http://localhost:3000/api/graph/stats");
+        const data = await res.json();
+        
+        const pagesRes = await fetch("http://localhost:3000/api/memory/pages");
+        const pagesData = await pagesRes.json();
+        const pageCount = Array.isArray(pagesData) ? pagesData.length : 0;
+        
+        graphStats.innerText = `Entities: ${data.entities} | Relationships: ${data.relationships} | Pages Indexed: ${pageCount}`;
+    } catch (err) {
+        graphStats.innerText = "Entities: 0 | Relationships: 0 | Pages Indexed: 0";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadStats);
+
+document
+.getElementById("graphAskBtn")
+.addEventListener("click", async () => {
+
+    const graphResult = document.getElementById("graphResult");
+    const graphQuestion = document.getElementById("graphQuestion");
+    const question = graphQuestion.value.trim();
+
+    if (!question) {
+        graphResult.innerText = "Please enter a question.";
+        return;
+    }
+
+    graphResult.innerText = "Searching knowledge graph & memory...";
+
+    try {
+        const res = await fetch(
+            "http://localhost:3000/api/graph/chat",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    question: question
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        // Refresh stats in case a build occurred recently
+        loadStats();
+
+        graphResult.innerText = data.answer || "No answer could be generated.";
+
+    } catch (err) {
+        graphResult.innerText = "Could not ask graph. Is backend running on http://localhost:3000?";
+    }
+});
+
