@@ -157,6 +157,7 @@ async function searchSimilarChunks(query, limit = 5) {
 }
 
 async function savePage({ url, title, content }) {
+    console.log("SAVE PAGE START", title);
     const safeContent = content || "";
     const chunks = chunkText(safeContent);
     const embeddings = [];
@@ -193,6 +194,7 @@ async function savePage({ url, title, content }) {
     });
 
     const pageId = pageRow?.id;
+    console.log("pageId:", pageId, "chunk count:", chunks.length);
 
     if (!pageId) {
         throw new Error("Saved page could not be found.");
@@ -226,6 +228,7 @@ async function savePage({ url, title, content }) {
         const { createGraphService } = require("../graph/graphService");
         const graphService = createGraphService();
         await graphService.processPage(pageId, title, safeContent);
+        console.log("graph processing complete");
     } catch (graphError) {
         console.error("Auto graph extraction failed:", graphError);
     }

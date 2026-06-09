@@ -7,6 +7,7 @@ const memoryRoutes = require("./routes/memoryRoutes");
 const securityRoutes = require("./routes/securityRoutes");
 const privacyRoutes = require("./routes/privacyRoutes");
 const graphRoutes = require("./routes/graphRoutes");
+const { savePage } = require("./services/memory/memoryService");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,6 +21,10 @@ app.use("/api/memory", memoryRoutes);
 app.use("/api/security", securityRoutes);
 app.use("/api/privacy", privacyRoutes);
 app.use("/api/graph", graphRoutes);
+
+// Serve the extension popup for local browser testing (dev only)
+const path = require("path");
+app.use("/popup", express.static(path.join(__dirname, "../extension")));
 
 // The route layer only formats responses and never depends on provider internals.
 function sendFriendlyAiError(res, responseKey, error, fallbackMessage) {
@@ -38,10 +43,19 @@ function sendFriendlyAiError(res, responseKey, error, fallbackMessage) {
 
 app.post("/summarize", async (req, res) => {
     try {
-        const { text } = req.body || {};
+        const { text, url, title } = req.body || {};
 
         // Summarization is now delegated to the active provider service.
         const summary = await aiService.summarize(text);
+
+        // Automatically save/index the page
+        if (url && title) {
+            try {
+                await savePage({ url, title, content: text });
+            } catch (saveError) {
+                console.error("Auto-save page during summary failed:", saveError);
+            }
+        }
 
         res.json({
             summary

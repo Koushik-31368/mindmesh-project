@@ -287,7 +287,9 @@ document.getElementById("summaryBtn").addEventListener("click", async () => {
                                 "Content-Type": "application/json"
                             },
                             body: JSON.stringify({
-                                text: response.text
+                                text: response.text,
+                                url: response.url,
+                                title: tab.title || response.url
                             })
                         }
                     );
