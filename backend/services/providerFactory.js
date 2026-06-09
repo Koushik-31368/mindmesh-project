@@ -49,6 +49,9 @@ function createAiService() {
         },
         privacySummary(policyText) {
             return withFallback((service, text) => service.privacySummary(text), policyText);
+        },
+        extractGraphData(text) {
+            return withFallback((service, pageText) => service.extractGraphData(pageText), text);
         }
     };
 }

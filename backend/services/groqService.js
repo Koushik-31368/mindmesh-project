@@ -279,11 +279,87 @@ Keep the response under 150 words.`
         }
     }
 
+    async function extractGraphData(text) {
+        assertClient();
+
+        const pageText = cleanText(trimPageText(text));
+        const prompt = `You are a knowledge graph extraction engine.
+
+Extract:
+
+1. Important entities
+2. Relationships between entities
+
+Return ONLY valid JSON.
+
+Format:
+
+{
+  "entities": [
+    {
+      "name": "Entity Name",
+      "type": "PERSON | COMPANY | PRODUCT | PROJECT | TECHNOLOGY | ORGANIZATION | LOCATION | OTHER"
+    }
+  ],
+  "relationships": [
+    {
+      "source": "Entity A",
+      "relation": "RELATIONSHIP",
+      "target": "Entity B"
+    }
+  ]
+}
+
+Rules:
+
+- No explanations.
+- No markdown.
+- No extra text.
+- Output JSON only.
+
+Text:
+
+${pageText}`;
+
+        try {
+            const response = await client.chat.completions.create({
+                model,
+                messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+                temperature: 0.1
+            });
+
+            const content = response?.choices?.[0]?.message?.content;
+            if (!content) {
+                return { entities: [], relationships: [] };
+            }
+
+            let jsonString = content;
+            const firstBrace = jsonString.indexOf("{");
+            const lastBrace = jsonString.lastIndexOf("}");
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                jsonString = jsonString.substring(firstBrace, lastBrace + 1);
+            }
+            return JSON.parse(jsonString);
+        } catch (error) {
+            console.error("Graph extraction failed:", error);
+            return {
+                entities: [],
+                relationships: []
+            };
+        }
+    }
+
     return {
         ask,
         summarize,
         securityVerify,
-        privacySummary
+        privacySummary,
+        extractGraphData
     };
 }
 
