@@ -87,4 +87,46 @@ router.post("/chat", async (req, res) => {
     }
 });
 
+router.get("/network", async (req, res) => {
+    try {
+        const network = await graphService.getNetworkData();
+        res.json(network);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "Failed to get graph network"
+        });
+    }
+});
+
+router.get("/analytics", async (req, res) => {
+    try {
+        const analytics = await graphService.getAnalytics();
+        res.json(analytics);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "Failed to get graph analytics"
+        });
+    }
+});
+
+router.get("/source/:relationshipId", async (req, res) => {
+    try {
+        const source = await graphService.getRelationshipSource(req.params.relationshipId);
+        if (!source) {
+            return res.status(404).json({
+                error: "Relationship source not found"
+            });
+        }
+        res.json(source);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "Failed to get relationship source"
+        });
+    }
+});
+
 module.exports = router;
+

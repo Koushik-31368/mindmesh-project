@@ -1,88 +1,159 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MindMesh</title>
+    <meta charset="UTF-8">
+    <title>MindMesh Dashboard</title>
     <link rel="stylesheet" href="popup.css">
+    <script src="cytoscape.min.js"></script>
 </head>
 <body>
 
-    <h1>MindMesh</h1>
-
-    <button id="summaryBtn">
-        Summarize Page
-    </button>
-
-    <input id="questionInput" type="text" placeholder="Ask about this page">
-
-    <button id="askBtn">
-        Ask
-    </button>
-
-    <div id="result">
-        Ready...
-    </div>
-
-    <section class="memory-chat">
-        <h2>Memory Chat</h2>
-
-        <input
-            id="memoryQuestionInput"
-            type="text"
-            placeholder="What do you want to ask your saved memory?"
-        >
-
-        <button id="memoryAskBtn">
-            Ask Memory
-        </button>
-
-        <div id="memoryResult">
-            Memory answer will appear here.
+    <header class="app-header">
+        <div class="logo-area">
+            <span class="logo-icon">🕸️</span>
+            <h1>MindMesh</h1>
         </div>
-    </section>
-
-    <section class="security-section">
-        <h2>Security Analysis</h2>
-
-        <button id="securityBtn">
-            Analyze Page Safety
-        </button>
-
-        <div id="securityResult">
-            Security analysis will appear here.
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span class="status-text">Connected</span>
         </div>
-    </section>
+    </header>
 
-    <section class="privacy-section">
-        <h2>Privacy Intelligence</h2>
+    <nav class="tabs-nav">
+        <button class="tab-btn active" data-tab="tab-page">📝 Page</button>
+        <button class="tab-btn" data-tab="tab-memory">🧠 Memory</button>
+        <button class="tab-btn" data-tab="tab-security">🛡️ Safety</button>
+        <button class="tab-btn" data-tab="tab-privacy">🔒 Privacy</button>
+        <button class="tab-btn" data-tab="tab-graph">🕸️ Graph</button>
+    </nav>
 
-        <textarea id="policyInput" placeholder="Paste privacy policy text here (optional)..."></textarea>
+    <main class="tabs-content">
+        <!-- PAGE TAB -->
+        <div id="tab-page" class="tab-pane active">
+            <button id="summaryBtn" class="primary-btn">
+                Summarize Current Page
+            </button>
 
-        <button id="privacyBtn">
-            Analyze Privacy
-        </button>
+            <div class="input-group">
+                <input id="questionInput" type="text" placeholder="Ask about this page...">
+                <button id="askBtn" class="secondary-btn">Ask Page</button>
+            </div>
 
-        <div id="privacyResult">
-            Privacy analysis will appear here.
-        </div>
-    <section class="graph-section">
-        <h2>Knowledge Graph</h2>
-
-        <div id="graphStats">
-            Loading graph statistics...
+            <div class="result-card">
+                <h3>Analysis Output</h3>
+                <div id="result" class="scroll-area">Ready...</div>
+            </div>
         </div>
 
-        <textarea id="graphQuestion" placeholder="Ask about connections (e.g. How is OpenAI connected to Kethan?)..."></textarea>
+        <!-- MEMORY TAB -->
+        <div id="tab-memory" class="tab-pane">
+            <div class="section-title">
+                <h2>Memory Search</h2>
+                <p>Query across all your historically saved pages</p>
+            </div>
 
-        <button id="graphAskBtn">
-            Ask Graph
-        </button>
+            <div class="input-group">
+                <input id="memoryQuestionInput" type="text" placeholder="What did I read about OpenAI?">
+                <button id="memoryAskBtn" class="primary-btn">Ask Memory</button>
+            </div>
 
-        <div id="graphResult">
-            Graph answer will appear here.
+            <div class="result-card">
+                <h3>Memory Insights</h3>
+                <div id="memoryResult" class="scroll-area">Memory answer will appear here.</div>
+            </div>
         </div>
-    </section>
+
+        <!-- SECURITY TAB -->
+        <div id="tab-security" class="tab-pane">
+            <div class="section-title">
+                <h2>Page Safety Analysis</h2>
+                <p>Analyze links, certificate metadata, and structural heuristics</p>
+            </div>
+
+            <button id="securityBtn" class="primary-btn security-btn">
+                Analyze Page Safety
+            </button>
+
+            <div class="result-card">
+                <h3>Safety Verdict</h3>
+                <div id="securityResult" class="scroll-area">Security analysis will appear here.</div>
+            </div>
+        </div>
+
+        <!-- PRIVACY TAB -->
+        <div id="tab-privacy" class="tab-pane">
+            <div class="section-title">
+                <h2>Privacy Assessment</h2>
+                <p>Verify data collection metrics and trackers</p>
+            </div>
+
+            <textarea id="policyInput" placeholder="Paste privacy policy text here (optional)..."></textarea>
+            <button id="privacyBtn" class="primary-btn">Analyze Privacy Policy</button>
+
+            <div class="result-card">
+                <h3>Privacy Breakdown</h3>
+                <div id="privacyResult" class="scroll-area">Privacy analysis will appear here.</div>
+            </div>
+        </div>
+
+        <!-- GRAPH TAB -->
+        <div id="tab-graph" class="tab-pane">
+            <div class="section-title">
+                <h2>Knowledge Graph</h2>
+                <p>Explore automatically extracted entities & relationships</p>
+            </div>
+
+            <div id="graphStats">
+                Loading graph statistics...
+            </div>
+
+            <!-- Dashboard Columns -->
+            <div class="analytics-row">
+                <div class="analytics-card">
+                    <h4>Overview Metrics</h4>
+                    <ul class="stats-list">
+                        <li><span>Entities</span><strong id="analyticsEntities">0</strong></li>
+                        <li><span>Relationships</span><strong id="analyticsRelationships">0</strong></li>
+                        <li><span>Pages Indexed</span><strong id="analyticsPages">0</strong></li>
+                    </ul>
+                </div>
+                <div class="analytics-card">
+                    <h4>Top Entities</h4>
+                    <ul id="topEntitiesList" class="top-entities-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="graph-canvas-container">
+                <h4>Connection Visualizer</h4>
+                <div id="cy"></div>
+                <div class="graph-help-text">💡 Hint: Drag nodes to rearrange. Click edges to inspect provenance sources.</div>
+            </div>
+
+            <!-- Connection Source Explainability -->
+            <div id="sourceExplainabilityCard" class="explainability-card hidden">
+                <div class="card-header">
+                    <h4>🔍 Connection Provenance</h4>
+                    <button id="closeExplainBtn" class="close-btn">&times;</button>
+                </div>
+                <div class="explainability-content">
+                    <p class="path-display"><strong id="sourceNode">NodeA</strong> <span id="relPath">➔</span> <strong id="targetNode">NodeB</strong></p>
+                    <p><strong>Page Source:</strong> <a id="sourcePageLink" href="#" target="_blank">Page Title</a></p>
+                </div>
+            </div>
+
+            <!-- Graph QA -->
+            <div class="graph-qa-card">
+                <h3>Multi-Hop Graph Chat</h3>
+                <textarea id="graphQuestion" placeholder="Ask about connections (e.g. How is OpenAI connected to MindMesh?)..."></textarea>
+                <button id="graphAskBtn" class="primary-btn">Ask Graph</button>
+                <div id="graphResult" class="scroll-area">Graph answer will appear here.</div>
+            </div>
+        </div>
+    </main>
 
     <script src="popup.js"></script>
-
 </body>
 </html>

@@ -249,10 +249,104 @@ function createGraphService() {
         };
     }
 
+    async function getNetworkData() {
+        const nodes = await allQuery(`
+            SELECT id, name AS label, type
+            FROM entities
+        `);
+
+        const edges = await allQuery(`
+            SELECT
+                id,
+                source_entity_id AS [from],
+                target_entity_id AS [to],
+                relation AS label,
+                confidence,
+                page_id AS pageId
+            FROM relationships
+        `);
+
+        return { nodes, edges };
+    }
+
+    async function getAnalytics() {
+        const entityCount = await getQuery(`
+            SELECT COUNT(*) AS count
+            FROM entities
+        `);
+
+        const relationshipCount = await getQuery(`
+            SELECT COUNT(*) AS count
+            FROM relationships
+        `);
+
+        const pageCount = await getQuery(`
+            SELECT COUNT(*) AS count
+            FROM pages
+        `);
+
+        const topEntities = await allQuery(`
+            SELECT e.name, COUNT(*) as connections
+            FROM (
+                SELECT source_entity_id AS entity_id FROM relationships
+                UNION ALL
+                SELECT target_entity_id AS entity_id FROM relationships
+            ) r
+            JOIN entities e ON e.id = r.entity_id
+            GROUP BY r.entity_id
+            ORDER BY connections DESC
+            LIMIT 5
+        `);
+
+        return {
+            entities: entityCount?.count || 0,
+            relationships: relationshipCount?.count || 0,
+            pagesIndexed: pageCount?.count || 0,
+            topEntities: topEntities || []
+        };
+    }
+
+    async function getRelationshipSource(relationshipId) {
+        const row = await getQuery(`
+            SELECT 
+                r.relation,
+                e1.name AS source_name,
+                e2.name AS target_name,
+                p.id AS page_id,
+                p.title AS page_title,
+                p.url AS page_url
+            FROM relationships r
+            JOIN entities e1 ON e1.id = r.source_entity_id
+            JOIN entities e2 ON e2.id = r.target_entity_id
+            LEFT JOIN pages p ON p.id = r.page_id
+            WHERE r.id = ?
+        `, [relationshipId]);
+
+        if (!row) {
+            return null;
+        }
+
+        return {
+            relationship: {
+                source: row.source_name,
+                relation: row.relation,
+                target: row.target_name
+            },
+            page: row.page_id ? {
+                id: row.page_id,
+                title: row.page_title,
+                url: row.page_url
+            } : null
+        };
+    }
+
     return {
         buildGraph,
         queryGraph,
         getStats,
+        getNetworkData,
+        getAnalytics,
+        getRelationshipSource,
         traverseGraph,
         getEntityByName,
         getNeighbors,
