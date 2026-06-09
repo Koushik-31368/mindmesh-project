@@ -6,6 +6,10 @@ const {
     createGraphService
 } = require("../services/graph/graphService");
 
+const {
+    answerHybrid
+} = require("../services/graph/graphChatService");
+
 const graphService =
     createGraphService();
 
@@ -66,6 +70,19 @@ router.post("/query", async (req, res) => {
 
         res.status(500).json({
             error: "Failed to query graph"
+        });
+    }
+});
+
+router.post("/chat", async (req, res) => {
+    try {
+        const { question } = req.body;
+        const result = await answerHybrid(question);
+        res.json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "Failed hybrid chat query"
         });
     }
 });

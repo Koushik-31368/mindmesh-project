@@ -354,12 +354,59 @@ ${pageText}`;
         }
     }
 
+    async function answerQuestion(question, graphContext, memoryContext) {
+        assertClient();
+
+        const formattedGraph = (graphContext?.relationships || [])
+            .map(r => `- ${r.source} ${r.relation} ${r.target}`)
+            .join("\n") || "No relevant relationships found.";
+
+        const formattedMemory = (memoryContext || [])
+            .map((chunk, idx) => `[${idx + 1}] ${cleanText(chunk.chunkText)}`)
+            .join("\n") || "No relevant memory chunks found.";
+
+        const prompt = `You are a hybrid answering assistant. You answer questions by combining:
+1. Semantic memory chunks (general context)
+2. A knowledge graph (relationships and facts)
+
+Combine both sources of information to construct a coherent, accurate, and concise answer.
+If the information is not present in either source, say so. Do not make up facts.
+
+SEMANTIC MEMORY CHUNKS:
+${formattedMemory}
+
+KNOWLEDGE GRAPH RELATIONSHIPS:
+${formattedGraph}
+
+QUESTION:
+${cleanText(question)}`;
+
+        try {
+            const response = await client.chat.completions.create({
+                model,
+                messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ],
+                temperature: 0.3
+            });
+
+            const answer = response?.choices?.[0]?.message?.content;
+            return cleanText(answer) || "No answer could be generated.";
+        } catch (error) {
+            throw normalizeProviderError(error, "Groq", "Failed to answer question using hybrid context.");
+        }
+    }
+
     return {
         ask,
         summarize,
         securityVerify,
         privacySummary,
-        extractGraphData
+        extractGraphData,
+        answerQuestion
     };
 }
 

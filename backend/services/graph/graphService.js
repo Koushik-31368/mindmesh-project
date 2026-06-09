@@ -84,6 +84,72 @@ function createGraphService() {
         );
     }
 
+    async function getEntityByName(name) {
+        return await getQuery(
+            `
+            SELECT id, name, type
+            FROM entities
+            WHERE LOWER(name) = ?
+            `,
+            [name.toLowerCase()]
+        );
+    }
+
+    async function getNeighbors(entityId) {
+        return await allQuery(
+            `
+            SELECT
+                e1.id AS source_id,
+                e1.name AS source,
+                r.relation,
+                e2.id AS target_id,
+                e2.name AS target
+            FROM relationships r
+            JOIN entities e1 ON e1.id = r.source_entity_id
+            JOIN entities e2 ON e2.id = r.target_entity_id
+            WHERE e1.id = ? OR e2.id = ?
+            `,
+            [entityId, entityId]
+        );
+    }
+
+    async function traverseGraph(startEntityId, maxDepth = 2) {
+        const visited = new Set();
+        const relationships = [];
+        const queue = [{ entityId: startEntityId, depth: 0 }];
+        visited.add(startEntityId);
+
+        while (queue.length > 0) {
+            const { entityId, depth } = queue.shift();
+
+            if (depth >= maxDepth) {
+                continue;
+            }
+
+            const neighbors = await getNeighbors(entityId);
+
+            for (const rel of neighbors) {
+                const relKey = `${rel.source_id}-${rel.relation}-${rel.target_id}`;
+                if (!relationships.some(r => `${r.source_id}-${r.relation}-${r.target_id}` === relKey)) {
+                    relationships.push(rel);
+                }
+
+                const neighborId = rel.source_id === entityId ? rel.target_id : rel.source_id;
+
+                if (!visited.has(neighborId)) {
+                    visited.add(neighborId);
+                    queue.push({ entityId: neighborId, depth: depth + 1 });
+                }
+            }
+        }
+
+        return relationships.map(r => ({
+            source: r.source,
+            relation: r.relation,
+            target: r.target
+        }));
+    }
+
     async function buildGraph() {
         const pages = await allQuery(`
             SELECT id, title, content
@@ -147,29 +213,7 @@ function createGraphService() {
             };
         }
 
-        const relationships = await allQuery(
-            `
-            SELECT
-                e1.name AS source,
-                r.relation,
-                e2.name AS target
-
-            FROM relationships r
-
-            JOIN entities e1
-            ON e1.id = r.source_entity_id
-
-            JOIN entities e2
-            ON e2.id = r.target_entity_id
-
-            WHERE e1.id = ?
-               OR e2.id = ?
-            `,
-            [
-                matchedEntity.id,
-                matchedEntity.id
-            ]
-        );
+        const relationships = await traverseGraph(matchedEntity.id, 2);
 
         return {
             entity: matchedEntity.name,
@@ -197,7 +241,10 @@ function createGraphService() {
     return {
         buildGraph,
         queryGraph,
-        getStats
+        getStats,
+        traverseGraph,
+        getEntityByName,
+        getNeighbors
     };
 }
 

@@ -7,11 +7,11 @@ function createAiService() {
     const geminiService = createGeminiService();
 
     // Groq is the primary provider and Gemini is the automatic fallback.
-    async function withFallback(action, text, question) {
+    async function withFallback(action, ...args) {
         console.log("Using Groq");
 
         try {
-            return await action(groqService, text, question);
+            return await action(groqService, ...args);
         } catch (error) {
             if (!error?.fallbackEligible) {
                 throw error;
@@ -21,7 +21,7 @@ function createAiService() {
             console.log("Using Gemini fallback");
 
             try {
-                return await action(geminiService, text, question);
+                return await action(geminiService, ...args);
             } catch (geminiError) {
                 console.error(geminiError);
 
@@ -52,6 +52,14 @@ function createAiService() {
         },
         extractGraphData(text) {
             return withFallback((service, pageText) => service.extractGraphData(pageText), text);
+        },
+        answerQuestion(question, graphContext, memoryContext) {
+            return withFallback(
+                (service, q, gCtx, mCtx) => service.answerQuestion(q, gCtx, mCtx),
+                question,
+                graphContext,
+                memoryContext
+            );
         }
     };
 }
