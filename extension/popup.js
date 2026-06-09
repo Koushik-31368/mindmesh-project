@@ -1,3 +1,24 @@
+// Mock chrome APIs for browser testing/development
+function getChrome() {
+    if (typeof chrome !== "undefined" && chrome.tabs) {
+        return chrome;
+    }
+    return {
+        tabs: {
+            query: async () => [{ id: 1 }],
+            sendMessage: (tabId, message, callback) => {
+                if (message.action === "getPageContent") {
+                    callback({
+                        text: "Welcome to Paypal. Please login with your username and password to proceed authentication. Free crypto lottery winner! Claim reward now.",
+                        url: "http://paypa1.com/signin",
+                        html: '<form action="http://paypa1.com/login" method="POST"><input type="password" name="pass"><div style="display:none">hidden field</div></form> <iframe src="https://doubleclick.net"></iframe>'
+                    });
+                }
+            }
+        }
+    };
+}
+
 // Tab Switching Setup
 function setupTabs() {
     const tabBtns = document.querySelectorAll(".tab-btn");
@@ -241,12 +262,12 @@ document.getElementById("summaryBtn").addEventListener("click", async () => {
     resultBox.innerText = "Reading page...";
 
     try {
-        const [tab] = await chrome.tabs.query({
+        const [tab] = await getChrome().tabs.query({
             active: true,
             currentWindow: true
         });
 
-        chrome.tabs.sendMessage(
+        getChrome().tabs.sendMessage(
             tab.id,
             { action: "getPageContent" },
             async (response) => {
@@ -297,12 +318,12 @@ document.getElementById("askBtn").addEventListener("click", async () => {
     resultBox.innerText = "Reading page...";
 
     try {
-        const [tab] = await chrome.tabs.query({
+        const [tab] = await getChrome().tabs.query({
             active: true,
             currentWindow: true
         });
 
-        chrome.tabs.sendMessage(
+        getChrome().tabs.sendMessage(
             tab.id,
             { action: "getPageContent" },
             async (response) => {
@@ -380,12 +401,12 @@ document.getElementById("securityBtn").addEventListener("click", async () => {
     securityResult.innerText = "Analyzing page safety...";
 
     try {
-        const [tab] = await chrome.tabs.query({
+        const [tab] = await getChrome().tabs.query({
             active: true,
             currentWindow: true
         });
 
-        chrome.tabs.sendMessage(
+        getChrome().tabs.sendMessage(
             tab.id,
             { action: "getPageContent" },
             async (response) => {
@@ -446,12 +467,12 @@ document.getElementById("privacyBtn").addEventListener("click", async () => {
     privacyResult.innerText = "Analyzing privacy...";
 
     try {
-        const [tab] = await chrome.tabs.query({
+        const [tab] = await getChrome().tabs.query({
             active: true,
             currentWindow: true
         });
 
-        chrome.tabs.sendMessage(
+        getChrome().tabs.sendMessage(
             tab.id,
             { action: "getPageContent" },
             async (response) => {
