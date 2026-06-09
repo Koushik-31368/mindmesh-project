@@ -66,10 +66,13 @@ db.serialize(() => {
             source_entity_id INTEGER NOT NULL,
             relation TEXT NOT NULL,
             target_entity_id INTEGER NOT NULL,
+            confidence REAL DEFAULT 1.0,
+            page_id INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
             FOREIGN KEY(source_entity_id) REFERENCES entities(id),
             FOREIGN KEY(target_entity_id) REFERENCES entities(id),
+            FOREIGN KEY(page_id) REFERENCES pages(id) ON DELETE CASCADE,
 
             UNIQUE(
                 source_entity_id,

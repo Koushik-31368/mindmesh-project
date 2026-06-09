@@ -221,6 +221,15 @@ async function savePage({ url, title, content }) {
         }
     }
 
+    // Auto Graph Update: automatically extract entities and relationships on page save
+    try {
+        const { createGraphService } = require("../graph/graphService");
+        const graphService = createGraphService();
+        await graphService.processPage(pageId, title, safeContent);
+    } catch (graphError) {
+        console.error("Auto graph extraction failed:", graphError);
+    }
+
     return {
         success: true,
         pageId,

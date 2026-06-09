@@ -66,22 +66,58 @@ function createGraphService() {
         return entity?.id;
     }
 
-    async function saveRelationship(sourceId, relation, targetId) {
+    async function saveRelationship(sourceId, relation, targetId, pageId = null, confidence = 1.0) {
         await runQuery(
             `
             INSERT OR IGNORE INTO relationships(
                 source_entity_id,
                 relation,
-                target_entity_id
+                target_entity_id,
+                page_id,
+                confidence
             )
-            VALUES (?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
             `,
             [
                 sourceId,
                 relation,
-                targetId
+                targetId,
+                pageId,
+                confidence
             ]
         );
+    }
+
+    async function processPage(pageId, title, content) {
+        console.log("Graphing:", title);
+
+        const graphData = await aiService.extractGraphData(content);
+
+        const entityMap = new Map();
+
+        for (const entity of graphData.entities || []) {
+            const entityId = await saveEntity(entity.name, entity.type);
+            entityMap.set(entity.name, entityId);
+        }
+
+        for (const relation of graphData.relationships || []) {
+            const sourceId = entityMap.get(relation.source);
+            const targetId = entityMap.get(relation.target);
+
+            if (!sourceId || !targetId) {
+                continue;
+            }
+
+            const confidence = typeof relation.confidence === "number" ? relation.confidence : 1.0;
+
+            await saveRelationship(
+                sourceId,
+                relation.relation,
+                targetId,
+                pageId,
+                confidence
+            );
+        }
     }
 
     async function getEntityByName(name) {
@@ -159,32 +195,7 @@ function createGraphService() {
         let processedPages = 0;
 
         for (const page of pages) {
-            console.log("Graphing:", page.title);
-
-            const graphData = await aiService.extractGraphData(page.content);
-
-            const entityMap = new Map();
-
-            for (const entity of graphData.entities || []) {
-                const entityId = await saveEntity(entity.name, entity.type);
-                entityMap.set(entity.name, entityId);
-            }
-
-            for (const relation of graphData.relationships || []) {
-                const sourceId = entityMap.get(relation.source);
-                const targetId = entityMap.get(relation.target);
-
-                if (!sourceId || !targetId) {
-                    continue;
-                }
-
-                await saveRelationship(
-                    sourceId,
-                    relation.relation,
-                    targetId
-                );
-            }
-
+            await processPage(page.id, page.title, page.content);
             processedPages++;
         }
 
@@ -244,7 +255,8 @@ function createGraphService() {
         getStats,
         traverseGraph,
         getEntityByName,
-        getNeighbors
+        getNeighbors,
+        processPage
     };
 }
 
