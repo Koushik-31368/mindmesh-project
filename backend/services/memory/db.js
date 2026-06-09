@@ -48,6 +48,36 @@ db.serialize(() => {
             FOREIGN KEY(chunk_id) REFERENCES chunks(id) ON DELETE CASCADE
         )
     `);
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS entities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+            UNIQUE(name, type)
+        )
+    `);
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS relationships (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source_entity_id INTEGER NOT NULL,
+            relation TEXT NOT NULL,
+            target_entity_id INTEGER NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+            FOREIGN KEY(source_entity_id) REFERENCES entities(id),
+            FOREIGN KEY(target_entity_id) REFERENCES entities(id),
+
+            UNIQUE(
+                source_entity_id,
+                relation,
+                target_entity_id
+            )
+        )
+    `);
 });
 
 module.exports = db;
