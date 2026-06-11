@@ -8,17 +8,12 @@ function createAiService() {
 
     // Groq is the primary provider and Gemini is the automatic fallback.
     async function withFallback(action, ...args) {
-        console.log("Using Groq");
-
         try {
             return await action(groqService, ...args);
         } catch (error) {
             if (!error?.fallbackEligible) {
                 throw error;
             }
-
-            console.log("Groq failed, switching to Gemini");
-            console.log("Using Gemini fallback");
 
             try {
                 return await action(geminiService, ...args);

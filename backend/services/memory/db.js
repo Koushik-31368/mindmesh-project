@@ -83,4 +83,25 @@ db.serialize(() => {
     `);
 });
 
+db.runTransaction = async function(callback) {
+    return new Promise((resolve, reject) => {
+        db.run("BEGIN TRANSACTION", async function(err) {
+            if (err) return reject(err);
+            try {
+                const result = await callback();
+                db.run("COMMIT", (commitErr) => {
+                    if (commitErr) {
+                        db.run("ROLLBACK");
+                        reject(commitErr);
+                    } else {
+                        resolve(result);
+                    }
+                });
+            } catch (error) {
+                db.run("ROLLBACK", () => reject(error));
+            }
+        });
+    });
+};
+
 module.exports = db;

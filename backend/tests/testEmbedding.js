@@ -1,8 +1,8 @@
-require("dotenv").config();
+require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
 
 const {
     generateEmbedding
-} = require("./services/memory/embeddingService");
+} = require("../services/memory/embeddingService");
 
 (async () => {
     const embedding = await generateEmbedding("Amazon S3 is cloud object storage");

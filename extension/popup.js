@@ -22,6 +22,19 @@ function getChrome() {
 }
 
 const BACKEND = "http://localhost:3000";
+let isBackendAvailable = false;
+let isProcessing = false;
+
+function setProcessingState(buttons, isProcessingState, buttonText = null) {
+    isProcessing = isProcessingState;
+    buttons.forEach(btn => {
+        if (!btn) return;
+        btn.disabled = isProcessingState;
+        if (buttonText !== null) {
+            btn.innerText = buttonText;
+        }
+    });
+}
 
 // ─── Tab Switching ────────────────────────────────────────────────────
 function setupTabs() {
@@ -69,13 +82,16 @@ async function checkBackendHealth() {
         if (res.ok) {
             dot.className = "status-dot connected";
             text.innerText = "Connected";
+            isBackendAvailable = true;
         } else {
             dot.className = "status-dot";
             text.innerText = "Backend error";
+            isBackendAvailable = false;
         }
     } catch {
         dot.className = "status-dot";
         text.innerText = "Disconnected";
+        isBackendAvailable = false;
     }
 }
 
@@ -95,56 +111,100 @@ function setupPageTab() {
 
     if (summaryBtn) {
         summaryBtn.addEventListener("click", async () => {
+            if (isProcessing) return;
+            if (!isBackendAvailable) { resultBox.innerText = "Backend unavailable. Please start it on localhost:3000."; return; }
+
+            setProcessingState([summaryBtn, askBtn], true, "Summarizing...");
             resultBox.innerText = "Reading page...";
             try {
                 const [tab] = await getChrome().tabs.query({ active: true, currentWindow: true });
+                if (!tab) throw new Error("No active tab found.");
+                
                 getChrome().tabs.sendMessage(tab.id, { action: "getPageContent" }, async (response) => {
-                    if (!response) { resultBox.innerText = "Could not read page content."; return; }
-                    resultBox.innerText = "Summarizing...";
+                    if (getChrome().runtime && getChrome().runtime.lastError) {
+                        resultBox.innerText = "Cannot read this page (restricted or extension tab).";
+                        setProcessingState([summaryBtn, askBtn], false, "Summarize Page");
+                        return;
+                    }
+                    if (!response) { 
+                        resultBox.innerText = "Could not read page content."; 
+                        setProcessingState([summaryBtn, askBtn], false, "Summarize Page");
+                        return; 
+                    }
+                    
+                    resultBox.innerText = "Generating summary...";
                     try {
                         const res = await fetch(`${BACKEND}/summarize`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ text: response.text, url: response.url, title: tab.title || response.url })
+                            body: JSON.stringify({ text: response.text, url: response.url, title: tab.title || response.url }),
+                            signal: AbortSignal.timeout(20000)
                         });
                         const data = await res.json();
                         resultBox.innerText = data.summary || data.error || "No summary generated.";
+                        
+                        if (data.summary && !data.error) {
+                            checkRelatedMemory(response.text, response.url);
+                        }
                     } catch (err) {
-                        resultBox.innerText = "Backend unavailable. Is it running on localhost:3000?";
+                        resultBox.innerText = err.name === 'TimeoutError' ? "Request timed out." : "Backend unavailable. Is it running on localhost:3000?";
+                    } finally {
+                        setProcessingState([summaryBtn, askBtn], false, "Summarize Page");
                     }
                 });
             } catch (err) {
                 resultBox.innerText = "Unexpected error: " + err.message;
+                setProcessingState([summaryBtn, askBtn], false, "Summarize Page");
             }
         });
     }
 
     if (askBtn) {
         askBtn.addEventListener("click", async () => {
+            if (isProcessing) return;
+            if (!isBackendAvailable) { resultBox.innerText = "Backend unavailable. Please start it on localhost:3000."; return; }
+
             const questionInput = document.getElementById("questionInput");
             const question = questionInput.value.trim();
             if (!question) { resultBox.innerText = "Please enter a question."; return; }
 
+            setProcessingState([summaryBtn, askBtn], true);
             resultBox.innerText = "Reading page...";
             try {
                 const [tab] = await getChrome().tabs.query({ active: true, currentWindow: true });
+                if (!tab) throw new Error("No active tab found.");
+
                 getChrome().tabs.sendMessage(tab.id, { action: "getPageContent" }, async (response) => {
-                    if (!response) { resultBox.innerText = "Could not read page content."; return; }
+                    if (getChrome().runtime && getChrome().runtime.lastError) {
+                        resultBox.innerText = "Cannot read this page (restricted or extension tab).";
+                        setProcessingState([summaryBtn, askBtn], false);
+                        return;
+                    }
+                    if (!response) { 
+                        resultBox.innerText = "Could not read page content."; 
+                        setProcessingState([summaryBtn, askBtn], false);
+                        return; 
+                    }
+                    
                     resultBox.innerText = "Thinking...";
                     try {
                         const res = await fetch(`${BACKEND}/ask`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ text: response.text, question })
+                            body: JSON.stringify({ text: response.text, question }),
+                            signal: AbortSignal.timeout(20000)
                         });
                         const data = await res.json();
                         resultBox.innerText = data.answer || data.error || "No answer generated.";
                     } catch (err) {
-                        resultBox.innerText = "Backend unavailable. Is it running on localhost:3000?";
+                        resultBox.innerText = err.name === 'TimeoutError' ? "Request timed out." : "Backend unavailable. Is it running on localhost:3000?";
+                    } finally {
+                        setProcessingState([summaryBtn, askBtn], false);
                     }
                 });
             } catch (err) {
                 resultBox.innerText = "Unexpected error: " + err.message;
+                setProcessingState([summaryBtn, askBtn], false);
             }
         });
     }
@@ -157,21 +217,28 @@ function setupMemoryTab() {
 
     if (memoryAskBtn) {
         memoryAskBtn.addEventListener("click", async () => {
+            if (isProcessing) return;
+            if (!isBackendAvailable) { memoryResult.innerText = "Backend unavailable."; return; }
+
             const input = document.getElementById("memoryQuestionInput");
             const question = input.value.trim();
             if (!question) { memoryResult.innerText = "Please enter a question."; return; }
 
+            setProcessingState([memoryAskBtn], true);
             memoryResult.innerText = "Searching saved memory...";
             try {
                 const res = await fetch(`${BACKEND}/api/memory/chat`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ question })
+                    body: JSON.stringify({ question }),
+                    signal: AbortSignal.timeout(20000)
                 });
                 const data = await res.json();
                 memoryResult.innerText = data.answer || "No relevant information found.";
             } catch (err) {
-                memoryResult.innerText = "Backend unavailable. Is it running on localhost:3000?";
+                memoryResult.innerText = err.name === 'TimeoutError' ? "Request timed out." : "Backend unavailable. Is it running on localhost:3000?";
+            } finally {
+                setProcessingState([memoryAskBtn], false);
             }
         });
     }
@@ -183,6 +250,8 @@ function setupSecurityTab() {
 
     if (securityBtn) {
         securityBtn.addEventListener("click", async () => {
+            if (isProcessing) return;
+            
             const scoreCircle = document.getElementById("scoreCircle");
             const scoreNumber = document.getElementById("scoreNumber");
             const scoreLabel = document.getElementById("scoreLabel");
@@ -193,6 +262,12 @@ function setupSecurityTab() {
             const appHeader = document.getElementById("appHeader");
             const headerTitle = document.getElementById("headerTitle");
 
+            if (!isBackendAvailable) { 
+                scoreSubtitle.innerText = "Backend unavailable."; 
+                return; 
+            }
+
+            setProcessingState([securityBtn], true, "Analyzing...");
             scoreNumber.innerText = "...";
             scoreLabel.innerText = "";
             scoreSubtitle.innerText = "Analyzing page...";
@@ -201,9 +276,17 @@ function setupSecurityTab() {
 
             try {
                 const [tab] = await getChrome().tabs.query({ active: true, currentWindow: true });
+                if (!tab) throw new Error("No active tab found.");
+
                 getChrome().tabs.sendMessage(tab.id, { action: "getPageContent" }, async (response) => {
+                    if (getChrome().runtime && getChrome().runtime.lastError) {
+                        scoreSubtitle.innerText = "Cannot read this page (restricted or extension tab).";
+                        setProcessingState([securityBtn], false, "Analyze Page Safety");
+                        return;
+                    }
                     if (!response) {
                         scoreSubtitle.innerText = "Could not read page content.";
+                        setProcessingState([securityBtn], false, "Analyze Page Safety");
                         return;
                     }
 
@@ -211,7 +294,8 @@ function setupSecurityTab() {
                         const res = await fetch(`${BACKEND}/api/security/analyze`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ url: response.url, pageText: response.text, html: response.html })
+                            body: JSON.stringify({ url: response.url, pageText: response.text, html: response.html }),
+                            signal: AbortSignal.timeout(20000)
                         });
                         const data = await res.json();
 
@@ -272,11 +356,14 @@ function setupSecurityTab() {
                         }
 
                     } catch (err) {
-                        scoreSubtitle.innerText = "Backend unavailable.";
+                        scoreSubtitle.innerText = err.name === 'TimeoutError' ? "Request timed out." : "Backend unavailable.";
+                    } finally {
+                        setProcessingState([securityBtn], false, "Analyze Page Safety");
                     }
                 });
             } catch (err) {
                 scoreSubtitle.innerText = "Unexpected error.";
+                setProcessingState([securityBtn], false, "Analyze Page Safety");
             }
         });
     }
@@ -290,19 +377,35 @@ function setupPrivacyTab() {
 
     if (privacyBtn) {
         privacyBtn.addEventListener("click", async () => {
+            if (isProcessing) return;
+            if (!isBackendAvailable) { privacyResult.innerText = "Backend unavailable."; return; }
+
+            setProcessingState([privacyBtn], true, "Analyzing...");
             privacyResult.innerText = "Analyzing privacy...";
             privacyDetails.style.display = "none";
 
             try {
                 const [tab] = await getChrome().tabs.query({ active: true, currentWindow: true });
+                if (!tab) throw new Error("No active tab found.");
+
                 getChrome().tabs.sendMessage(tab.id, { action: "getPageContent" }, async (response) => {
-                    if (!response) { privacyResult.innerText = "Could not read page content."; return; }
+                    if (getChrome().runtime && getChrome().runtime.lastError) {
+                        privacyResult.innerText = "Cannot read this page (restricted or extension tab).";
+                        setProcessingState([privacyBtn], false, "Analyze Privacy");
+                        return;
+                    }
+                    if (!response) { 
+                        privacyResult.innerText = "Could not read page content."; 
+                        setProcessingState([privacyBtn], false, "Analyze Privacy");
+                        return; 
+                    }
 
                     try {
                         const res = await fetch(`${BACKEND}/api/privacy/analyze`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ html: response.html, url: response.url })
+                            body: JSON.stringify({ html: response.html, url: response.url }),
+                            signal: AbortSignal.timeout(20000)
                         });
                         const data = await res.json();
 
@@ -358,11 +461,14 @@ function setupPrivacyTab() {
                         }
 
                     } catch (err) {
-                        privacyResult.innerText = "Backend unavailable.";
+                        privacyResult.innerText = err.name === 'TimeoutError' ? "Request timed out." : "Backend unavailable.";
+                    } finally {
+                        setProcessingState([privacyBtn], false, "Analyze Privacy");
                     }
                 });
             } catch (err) {
                 privacyResult.innerText = "Unexpected error.";
+                setProcessingState([privacyBtn], false, "Analyze Privacy");
             }
         });
     }
@@ -389,14 +495,24 @@ async function loadAnalyticsOnly() {
 }
 
 async function loadAnalyticsAndGraph() {
+    if (!isBackendAvailable) return;
+    
+    // Add visual loading state
+    const container = document.getElementById("cy");
+    if (container) {
+        container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:12px;">Loading graph network...</div>`;
+    }
+
     await loadAnalyticsOnly();
 
     try {
-        const res = await fetch(`${BACKEND}/api/graph/network`);
+        const res = await fetch(`${BACKEND}/api/graph/network`, { signal: AbortSignal.timeout(10000) });
         const graphData = await res.json();
         renderGraph(graphData);
     } catch (err) {
-        console.error("Failed to render graph:", err);
+        if (container) {
+            container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--danger-red);font-size:12px;">Failed to load graph data.</div>`;
+        }
     }
 }
 
@@ -431,6 +547,8 @@ function renderGraph(graphData) {
         container.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:12px;">No graph data yet. Summarize some pages first.</div>`;
         return;
     }
+
+    container.innerHTML = ""; // Clear the loading text so Cytoscape canvas doesn't get pushed down
 
     if (cyInstance) { cyInstance.destroy(); }
 
@@ -490,7 +608,12 @@ function renderGraph(graphData) {
             { selector: "edge:selected", style: { "line-color": "#0057B8", "target-arrow-color": "#0057B8", "width": 2.5 } },
             { selector: "node:selected", style: { "border-color": "#0057B8", "border-width": "3px" } }
         ],
-        layout: { name: "cose", animate: false, fit: true, padding: 15 }
+        layout: { 
+            name: elements.length > 50 ? "concentric" : "cose", 
+            animate: false, 
+            fit: true, 
+            padding: 15 
+        }
     });
 
     cyInstance.on("tap", "edge", async evt => {
@@ -532,22 +655,29 @@ function setupGraphTab() {
 
     if (graphAskBtn) {
         graphAskBtn.addEventListener("click", async () => {
+            if (isProcessing) return;
+            if (!isBackendAvailable) { graphResult.innerText = "Backend unavailable."; return; }
+
             const input = document.getElementById("graphQuestion");
             const question = input.value.trim();
             if (!question) { graphResult.innerText = "Please enter a question."; return; }
 
+            setProcessingState([graphAskBtn], true);
             graphResult.innerText = "Searching knowledge graph & memory...";
             try {
                 const res = await fetch(`${BACKEND}/api/graph/chat`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ question })
+                    body: JSON.stringify({ question }),
+                    signal: AbortSignal.timeout(20000)
                 });
                 const data = await res.json();
                 loadAnalyticsAndGraph();
                 graphResult.innerText = data.answer || "No answer generated.";
             } catch (err) {
-                graphResult.innerText = "Backend unavailable.";
+                graphResult.innerText = err.name === 'TimeoutError' ? "Request timed out." : "Backend unavailable.";
+            } finally {
+                setProcessingState([graphAskBtn], false);
             }
         });
     }
@@ -579,3 +709,53 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+// ─── Related Memory (Déjà Browse) ─────────────────────────────────────
+async function checkRelatedMemory(text, currentUrl) {
+    const sessionKey = `rm_shown_${currentUrl}`;
+    if (sessionStorage.getItem(sessionKey)) return;
+
+    try {
+        const res = await fetch(`${BACKEND}/api/memory/related`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, currentUrl }),
+            signal: AbortSignal.timeout(10000)
+        });
+        const data = await res.json();
+
+        if (data.found) {
+            sessionStorage.setItem(sessionKey, "true");
+            
+            const toast = document.getElementById("relatedMemoryToast");
+            const rmTitle = document.getElementById("rmTitle");
+            const rmDays = document.getElementById("rmDays");
+            const rmSim = document.getElementById("rmSim");
+            const rmOpenBtn = document.getElementById("rmOpenBtn");
+            const rmDismissBtn = document.getElementById("rmDismissBtn");
+
+            if (!toast) return;
+
+            rmTitle.innerText = data.title || "Untitled Page";
+            rmDays.innerText = data.daysSinceViewed;
+            rmSim.innerText = data.similarity;
+
+            rmOpenBtn.onclick = () => {
+                if (getChrome().tabs.create) {
+                    getChrome().tabs.create({ url: data.url });
+                } else {
+                    window.open(data.url, '_blank');
+                }
+                toast.classList.add("hidden");
+            };
+
+            rmDismissBtn.onclick = () => {
+                toast.classList.add("hidden");
+            };
+
+            toast.classList.remove("hidden");
+        }
+    } catch (error) {
+        console.error("Related memory check failed:", error);
+    }
+}

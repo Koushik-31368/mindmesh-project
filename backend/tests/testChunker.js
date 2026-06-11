@@ -1,6 +1,6 @@
 const {
     chunkText
-} = require("./services/memory/chunkerService");
+} = require("../services/memory/chunkerService");
 
 const text = "hello ".repeat(1000);
 

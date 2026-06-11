@@ -157,7 +157,6 @@ async function searchSimilarChunks(query, limit = 5) {
 }
 
 async function savePage({ url, title, content }) {
-    console.log("SAVE PAGE START", title);
     const safeContent = content || "";
     const chunks = chunkText(safeContent);
     const embeddings = [];
@@ -194,26 +193,27 @@ async function savePage({ url, title, content }) {
     });
 
     const pageId = pageRow?.id;
-    console.log("pageId:", pageId, "chunk count:", chunks.length);
 
     if (!pageId) {
         throw new Error("Saved page could not be found.");
     }
 
-    await run("DELETE FROM chunks WHERE page_id = ?", [pageId]);
+    await db.runTransaction(async () => {
+        await run("DELETE FROM chunks WHERE page_id = ?", [pageId]);
 
-    for (let index = 0; index < chunks.length; index += 1) {
-        const chunkResult = await run(
-            `
-                INSERT INTO chunks
-                (page_id, chunk_index, chunk_text)
-                VALUES (?, ?, ?)
-            `,
-            [pageId, index, chunks[index]]
-        );
+        for (let index = 0; index < chunks.length; index += 1) {
+            const chunkResult = await run(
+                `
+                    INSERT INTO chunks
+                    (page_id, chunk_index, chunk_text)
+                    VALUES (?, ?, ?)
+                `,
+                [pageId, index, chunks[index]]
+            );
 
-        await saveChunkEmbedding(chunkResult.lastID, embeddings[index]);
-    }
+            await saveChunkEmbedding(chunkResult.lastID, embeddings[index]);
+        }
+    });
 
     if (CHROMA_INDEXING_ENABLED) {
         try {
@@ -228,7 +228,6 @@ async function savePage({ url, title, content }) {
         const { createGraphService } = require("../graph/graphService");
         const graphService = createGraphService();
         await graphService.processPage(pageId, title, safeContent);
-        console.log("graph processing complete");
     } catch (graphError) {
         console.error("Auto graph extraction failed:", graphError);
     }
@@ -281,6 +280,22 @@ function getAllPages() {
     });
 }
 
+function getPageById(pageId) {
+    return new Promise((resolve, reject) => {
+        db.get(
+            "SELECT * FROM pages WHERE id = ?",
+            [pageId],
+            (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            }
+        );
+    });
+}
+
 module.exports = {
     savePage,
     getAllPages,
@@ -289,5 +304,6 @@ module.exports = {
     getChunkEmbeddings,
     deserializeEmbedding,
     cosineSimilarity,
-    searchSimilarChunks
+    searchSimilarChunks,
+    getPageById
 };

@@ -11,8 +11,12 @@ const NETWORK_ERROR_CODES = new Set([
 ]);
 
 // Collapsing whitespace keeps prompts compact without changing the meaning of the page text.
-function cleanText(text) {
-    return (text || "").replace(/\s+/g, " ").trim();
+function cleanText(text, maxLength = 30000) {
+    let cleaned = String(text || "").replace(/\s+/g, " ").trim();
+    if (cleaned.length > maxLength) {
+        cleaned = cleaned.substring(0, maxLength) + "... [content truncated]";
+    }
+    return cleaned;
 }
 
 // The service throws structured errors so the route layer can return friendly responses.

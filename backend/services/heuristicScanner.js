@@ -56,11 +56,21 @@ const TRUSTED_DOMAINS = new Set([
  */
 function isTrustedDomain(hostname) {
     const lower = hostname.toLowerCase();
+
+    // Exact match
     if (TRUSTED_DOMAINS.has(lower)) return true;
 
-    // Check if it's a subdomain of a trusted domain
+    // Check if it's a valid subdomain of a trusted domain
+    // Must be preceded by a dot to prevent matching "fake-wikipedia.org"
     for (const trusted of TRUSTED_DOMAINS) {
-        if (lower.endsWith("." + trusted)) return true;
+        if (lower.endsWith("." + trusted)) {
+            // Also ensure it's truly a subdomain and not just a query param hack or similar
+            const prefix = lower.slice(0, -(trusted.length + 1));
+            // Basic check to ensure prefix isn't empty or containing weird characters
+            if (prefix.length > 0 && /^[a-z0-9.-]+$/.test(prefix)) {
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -154,6 +164,35 @@ function analyzeKeywords(text, hasPasswordFields) {
     });
     // Cap at 30 points for keywords
     penalty += Math.min(phishingCount * 10, 30);
+
+    // Scam and Piracy keywords - apply independently of password fields
+    const scamPhrases = [
+        "download free movie",
+        "crack",
+        "keygen",
+        "torrent",
+        "crypto double",
+        "guaranteed return",
+        "free download full version",
+        "piratebay",
+        "yts",
+        "1337x",
+        "putlocker",
+        "fmovies",
+        "watch free online",
+        "nulled",
+        "cracked software"
+    ];
+
+    let scamCount = 0;
+    scamPhrases.forEach(phrase => {
+        if (lowerText.includes(phrase)) {
+            scamCount++;
+            reasons.push(`Suspicious term detected: "${phrase}"`);
+        }
+    });
+    // Cap at 45 points for scams (enough to push into warning/danger territory)
+    penalty += Math.min(scamCount * 15, 45);
 
     // Login-related keywords — ONLY flag if page also has password input fields.
     // This prevents Wikipedia articles about "authentication" from being flagged.

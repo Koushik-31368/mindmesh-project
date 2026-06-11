@@ -1,7 +1,8 @@
-require("dotenv").config();
+require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
+
 const {
     analyzePageSafety
-} = require("./services/securityService");
+} = require("../services/securityService");
 
 (async () => {
     console.log("--- TEST case 1: Lookalike Phishing Page ---");

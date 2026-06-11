@@ -14,16 +14,19 @@
     let currentState = State.INACTIVE;
     let mmShadow = null;
 
-    chrome.storage.local.get(["mm-copilot-state"], (items) => {
-        if (items["mm-copilot-state"] !== undefined) {
-            currentState = items["mm-copilot-state"];
+    try {
+        const storedState = sessionStorage.getItem("mm-copilot-state");
+        if (storedState !== null) {
+            currentState = parseInt(storedState, 10);
         }
         
         if (currentState !== State.INACTIVE) {
             initUI();
             applyState();
         }
-    });
+    } catch (e) {
+        console.warn("MindMesh: Could not read sessionStorage", e);
+    }
 
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === "toggleFloatingShield") {
@@ -56,7 +59,11 @@
     });
 
     function saveState() {
-        chrome.storage.local.set({ "mm-copilot-state": currentState });
+        try {
+            sessionStorage.setItem("mm-copilot-state", currentState.toString());
+        } catch (e) {
+            console.warn("MindMesh: Could not write to sessionStorage", e);
+        }
     }
 
     function initUI() {
@@ -87,27 +94,27 @@
             /* Sleek Floating Launcher */
             .mm-launcher {
                 position: fixed;
-                top: 25%;
+                top: 50%;
+                margin-top: -24px;
                 right: 24px;
                 width: 48px;
                 height: 48px;
-                background-color: #0057B8;
+                background-color: transparent;
                 border-radius: 12px;
                 cursor: pointer;
                 z-index: 2147483647;
                 user-select: none;
-                transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s, background-color 0.2s;
+                transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 4px 15px rgba(0, 87, 184, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+                border: none;
             }
 
             .mm-launcher:hover {
                 transform: scale(1.05);
-                background-color: #004799;
-                box-shadow: 0 6px 20px rgba(0, 87, 184, 0.4);
+                filter: brightness(1.2);
             }
 
             .mm-launcher:active {
@@ -115,9 +122,10 @@
             }
 
             .mm-shield-icon {
-                width: 24px;
-                height: 24px;
-                fill: white;
+                width: 48px;
+                height: 48px;
+                object-fit: contain;
+                border-radius: 12px;
             }
 
             .mm-status-dot {
@@ -130,6 +138,39 @@
                 background-color: #00C896;
                 border: 2px solid #111827; /* Dark background color matcher to blend */
                 box-shadow: 0 0 6px rgba(0, 200, 150, 0.6);
+            }
+
+            .mm-close-btn {
+                position: absolute;
+                top: -8px;
+                left: -8px;
+                width: 20px;
+                height: 20px;
+                background-color: #1E293B;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #94A3B8;
+                border: 2px solid #0F172A;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                transition: color 0.2s, background-color 0.2s, opacity 0.2s;
+                opacity: 0;
+            }
+
+            .mm-launcher:hover .mm-close-btn {
+                opacity: 1;
+            }
+
+            .mm-close-btn:hover {
+                color: white;
+                background-color: #B91C1C;
+            }
+
+            .mm-close-btn svg {
+                width: 12px;
+                height: 12px;
             }
 
             /* Dashboard Sidebar */
@@ -173,13 +214,15 @@
         launcher.title = "MindMesh Assistant";
         
         // Simple SVG shield icon
-        launcher.innerHTML = `
-            <svg class="mm-shield-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span class="mm-status-dot"></span>
-        `;
+        launcher.innerHTML = 
+            '<div class="mm-close-btn" title="Hide Launcher">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<line x1="18" y1="6" x2="6" y2="18"></line>' +
+                    '<line x1="6" y1="6" x2="18" y2="18"></line>' +
+                '</svg>' +
+            '</div>' +
+            '<img src="' + chrome.runtime.getURL("icons/48.png") + '" class="mm-shield-icon" alt="MindMesh">' +
+            '<span class="mm-status-dot"></span>';
 
         const sidebar = document.createElement("div");
         sidebar.className = "mm-sidebar";
@@ -196,6 +239,15 @@
         launcher.addEventListener("click", (e) => {
             e.preventDefault();
             currentState = State.DASHBOARD;
+            applyState();
+            saveState();
+        });
+
+        const closeBtn = launcher.querySelector(".mm-close-btn");
+        closeBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            currentState = State.INACTIVE;
             applyState();
             saveState();
         });

@@ -186,10 +186,17 @@ mindmesh/
 │   │   ├── privacyLinkRanker.js
 │   │   └── privacyPolicyAnalyzer.js
 │   ├── data/
+│   ├── tests/
+│   │   ├── testChunkEmbeddings.js
+│   │   ├── testChunker.js
+│   │   ├── testEmbedding.js
+│   │   ├── testMemoryChat.js
+│   │   ├── testSecurityService.js
+│   │   └── testSemanticSearch.js
 │   ├── server.js
 │   ├── package.json
 │   └── .env.example
-└── extension/
+├── extension/
     ├── icons/
     ├── background.js
     ├── content.js
@@ -198,6 +205,9 @@ mindmesh/
     ├── popup.html
     ├── popup.js
     └── cytoscape.min.js
+└── scripts/
+    ├── generate_icons.js
+    └── generate_user_icons.js
 ```
 
 ## Installation

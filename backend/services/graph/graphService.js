@@ -89,35 +89,35 @@ function createGraphService() {
     }
 
     async function processPage(pageId, title, content) {
-        console.log("Graphing:", title);
-
         const graphData = await aiService.extractGraphData(content);
 
         const entityMap = new Map();
 
-        for (const entity of graphData.entities || []) {
-            const entityId = await saveEntity(entity.name, entity.type);
-            entityMap.set(entity.name, entityId);
-        }
-
-        for (const relation of graphData.relationships || []) {
-            const sourceId = entityMap.get(relation.source);
-            const targetId = entityMap.get(relation.target);
-
-            if (!sourceId || !targetId) {
-                continue;
+        await db.runTransaction(async () => {
+            for (const entity of graphData.entities || []) {
+                const entityId = await saveEntity(entity.name, entity.type);
+                entityMap.set(entity.name, entityId);
             }
 
-            const confidence = typeof relation.confidence === "number" ? relation.confidence : 1.0;
+            for (const relation of graphData.relationships || []) {
+                const sourceId = entityMap.get(relation.source);
+                const targetId = entityMap.get(relation.target);
 
-            await saveRelationship(
-                sourceId,
-                relation.relation,
-                targetId,
-                pageId,
-                confidence
-            );
-        }
+                if (!sourceId || !targetId) {
+                    continue;
+                }
+
+                const confidence = typeof relation.confidence === "number" ? relation.confidence : 1.0;
+
+                await saveRelationship(
+                    sourceId,
+                    relation.relation,
+                    targetId,
+                    pageId,
+                    confidence
+                );
+            }
+        });
     }
 
     async function getEntityByName(name) {

@@ -1,9 +1,9 @@
-require("dotenv").config();
+require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
 
 const {
     getChunkEmbeddings,
     savePage
-} = require("./services/memory/memoryService");
+} = require("../services/memory/memoryService");
 
 (async () => {
     const result = await savePage({

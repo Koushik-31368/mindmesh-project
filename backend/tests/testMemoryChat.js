@@ -1,7 +1,7 @@
-require("dotenv").config();
+require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
 
-const { savePage } = require("./services/memory/memoryService");
-const { answerFromMemory } = require("./services/memory/memoryChatService");
+const { savePage } = require("../services/memory/memoryService");
+const { answerFromMemory } = require("../services/memory/memoryChatService");
 
 (async () => {
     await savePage({
