@@ -2,9 +2,14 @@ node_modules/
 backend/node_modules/
 .env
 backend/.env
+.env.local
+backend/.env.local
 backend/data/mindmesh.db
 backend/data/*.db
 backend/data/*.sqlite
 *.db
 *.sqlite
+desktop.ini
+.DS_Store
+*.log
 
