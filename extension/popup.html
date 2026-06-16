@@ -21,12 +21,37 @@
                     </div>
                 </div>
             </div>
-            <button id="collapseBtn" class="collapse-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 9l6 6 6-6"/>
+            <!-- Close panel button: X icon (replaces incorrect down-chevron) -->
+            <button id="collapseBtn" class="collapse-btn" title="Close panel">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
             </button>
         </header>
+
+        <!-- ═══ Offline / Setup State ═══════════════════════════════ -->
+        <!-- Shown when backend is unreachable; hides tabs via CSS class -->
+        <div id="offlineState" class="offline-state">
+            <div class="offline-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                    <line x1="6" y1="6" x2="6.01" y2="6"/>
+                    <line x1="6" y1="18" x2="6.01" y2="18"/>
+                </svg>
+            </div>
+            <p class="offline-title">Backend Not Running</p>
+            <p class="offline-subtitle">MindMesh needs a local server to power its AI features. Start it with:</p>
+            <div class="offline-code-block">
+                <div class="offline-code-label">Terminal</div>
+                <code>cd backend<br>npm start</code>
+            </div>
+            <p class="offline-subtitle" style="margin: 0 0 16px; font-size: 11px;">
+                Then verify at <strong style="color: var(--text-main);">localhost:3000/health</strong>
+            </p>
+            <button id="retryConnectionBtn" class="primary-btn offline-retry-btn">&#8635; Retry Connection</button>
+        </div>
 
         <nav class="tabs-nav">
             <button class="tab-btn active" data-tab="tab-page">
@@ -52,26 +77,31 @@
         </nav>
 
         <main class="tabs-content">
-            <!-- PAGE TAB -->
+            <!-- ═══ PAGE TAB ═══════════════════════════════════════════ -->
             <div id="tab-page" class="tab-pane active">
-                <button id="summaryBtn" class="primary-btn" style="width: 100%; margin-bottom: 12px;">Summarize Page</button>
+                <button id="summaryBtn" class="primary-btn" style="width: 100%; margin-bottom: 12px; justify-content: center;">Summarize Page</button>
                 <div class="input-group" style="margin-bottom: 12px;">
                     <input id="questionInput" type="text" placeholder="Ask about this page...">
                     <button id="askBtn" class="secondary-btn">Ask</button>
                 </div>
-                <div id="result" class="scroll-area" style="color: var(--text-muted); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap;">Ready. Click "Summarize Page" or ask a question.</div>
+                <!-- Result area: innerText replaced by JS with renderMarkdown output -->
+                <div id="result" class="scroll-area result-area">
+                    <div class="empty-hint">Summarize a page or ask a question to get started.</div>
+                </div>
             </div>
 
-            <!-- MEMORY TAB -->
+            <!-- ═══ MEMORY TAB ═════════════════════════════════════════ -->
             <div id="tab-memory" class="tab-pane">
                 <div class="input-group" style="margin-bottom: 12px;">
                     <input id="memoryQuestionInput" type="text" placeholder="Ask your saved memory...">
                     <button id="memoryAskBtn" class="secondary-btn">Ask</button>
                 </div>
-                <div id="memoryResult" class="scroll-area" style="color: var(--text-muted); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap;">Ask a question to search across all saved pages.</div>
+                <div id="memoryResult" class="scroll-area result-area">
+                    <div class="empty-hint">Search your browsing history by meaning, not keywords.</div>
+                </div>
             </div>
 
-            <!-- SAFETY TAB -->
+            <!-- ═══ SAFETY TAB ═════════════════════════════════════════ -->
             <div id="tab-security" class="tab-pane">
                 <div class="score-container">
                     <div class="score-circle" id="scoreCircle">
@@ -81,21 +111,23 @@
                     <p class="score-subtitle" id="scoreSubtitle">Click "Analyze" to scan this page</p>
                 </div>
 
-                <button id="securityBtn" class="primary-btn" style="width: 100%; margin-bottom: 16px;">Analyze Page Safety</button>
+                <button id="securityBtn" class="primary-btn" style="width: 100%; margin-bottom: 16px; justify-content: center;">Analyze Page Safety</button>
 
                 <div class="safety-checks" id="safetyChecks"></div>
 
                 <div id="aiVerdict" style="display: none; margin-top: 16px; padding: 12px; background: var(--bg-panel); border-radius: 8px; border: 1px solid var(--border-color);">
-                    <h4 style="margin: 0 0 6px; font-size: 12px; color: var(--text-muted);">AI VERIFICATION</h4>
-                    <div id="aiVerdictContent" style="font-size: 12px; color: var(--text-main); line-height: 1.5;"></div>
+                    <h4 style="margin: 0 0 8px; font-size: 10px; font-weight: 600; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.5px;">AI VERIFICATION</h4>
+                    <div id="aiVerdictContent"></div>
                 </div>
             </div>
 
-            <!-- PRIVACY TAB -->
+            <!-- ═══ PRIVACY TAB ════════════════════════════════════════ -->
             <div id="tab-privacy" class="tab-pane">
-                <button id="privacyBtn" class="primary-btn" style="width: 100%; margin-bottom: 16px;">Analyze Privacy</button>
+                <button id="privacyBtn" class="primary-btn" style="width: 100%; margin-bottom: 16px; justify-content: center;">Analyze Privacy</button>
 
-                <div id="privacyResult" style="color: var(--text-muted); font-size: 12.5px;">Click "Analyze Privacy" to scan this page for trackers and data collection.</div>
+                <div id="privacyResult">
+                    <div class="empty-hint">Click "Analyze Privacy" to detect trackers, data collection, and privacy policy highlights.</div>
+                </div>
 
                 <div id="privacyDetails" style="display: none;">
                     <div class="privacy-section">
@@ -112,12 +144,12 @@
                     </div>
                     <div id="privacyAiSummary" style="display: none;" class="privacy-section">
                         <h3>AI PRIVACY SUMMARY</h3>
-                        <div id="privacyAiContent" style="font-size: 12px; color: var(--text-main); line-height: 1.5; white-space: pre-wrap;"></div>
+                        <div id="privacyAiContent"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- GRAPH TAB -->
+            <!-- ═══ GRAPH TAB ══════════════════════════════════════════ -->
             <div id="tab-graph" class="tab-pane">
                 <div style="display: flex; gap: 8px; margin-bottom: 12px; font-size: 11px; color: var(--text-muted);">
                     <div style="background: var(--bg-panel); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); flex: 1; text-align: center;">
@@ -136,10 +168,10 @@
 
                 <div id="cy" style="width: 100%; height: 250px; background: var(--bg-panel); border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; overflow: hidden;"></div>
 
-                <!-- Relationship Explainability Card -->
+                <!-- Relationship Provenance Card -->
                 <div id="sourceExplainabilityCard" class="hidden" style="padding: 12px; background: var(--bg-panel); border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; font-size: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <h4 style="margin: 0; font-size: 11px; color: var(--text-muted);">RELATIONSHIP SOURCE</h4>
+                        <h4 style="margin: 0; font-size: 10px; font-weight: 600; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.5px;">RELATIONSHIP SOURCE</h4>
                         <button id="closeExplainBtn" class="secondary-btn" style="padding: 2px 8px; font-size: 10px;">×</button>
                     </div>
                     <div style="color: var(--text-main);">
@@ -154,27 +186,33 @@
                     <input id="graphQuestion" type="text" placeholder="Ask your knowledge graph...">
                     <button id="graphAskBtn" class="secondary-btn">Ask</button>
                 </div>
-                <div id="graphResult" class="scroll-area" style="color: var(--text-muted); font-size: 12.5px; line-height: 1.6; white-space: pre-wrap;">Ask a question to search across the knowledge graph and memory.</div>
+                <div id="graphResult" class="scroll-area result-area">
+                    <div class="empty-hint">Ask a question to search the knowledge graph and memory.</div>
+                </div>
             </div>
         </main>
 
-        <!-- RELATED MEMORY TOAST -->
+        <!-- ═══ RELATED MEMORY TOAST (Déjà Browse) ═══════════════════ -->
+        <!-- Toast icon: clock (replaces the incorrect dollar-sign/currency icon) -->
         <div id="relatedMemoryToast" class="related-memory-toast hidden">
             <div class="toast-header">
                 <span class="toast-icon">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
                 </span>
                 <span class="toast-title">You Have Seen This Before</span>
             </div>
             <div class="toast-body">
                 <div id="rmTitle" class="rm-title"></div>
                 <div class="rm-meta">
-                    <span id="rmDays"></span> days ago • <span id="rmSim"></span>% Match
+                    <span id="rmDays"></span> days ago &bull; <span id="rmSim"></span>% Match
                 </div>
             </div>
             <div class="toast-actions">
-                <button id="rmOpenBtn" class="primary-btn" style="flex: 1; padding: 4px 8px; font-size: 11px;">Open</button>
-                <button id="rmDismissBtn" class="secondary-btn" style="flex: 1; padding: 4px 8px; font-size: 11px;">Dismiss</button>
+                <button id="rmOpenBtn" class="primary-btn" style="flex: 1; padding: 4px 8px; font-size: 11px; justify-content: center;">Open</button>
+                <button id="rmDismissBtn" class="secondary-btn" style="flex: 1; padding: 4px 8px; font-size: 11px; justify-content: center;">Dismiss</button>
             </div>
         </div>
 
