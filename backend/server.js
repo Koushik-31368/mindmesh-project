@@ -8,6 +8,7 @@ const securityRoutes = require("./routes/securityRoutes");
 const privacyRoutes = require("./routes/privacyRoutes");
 const graphRoutes = require("./routes/graphRoutes");
 const { savePage } = require("./services/memory/memoryService");
+const { indexPageChunks, retrieveRelevantChunks } = require("./services/liveRagService");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -48,7 +49,7 @@ app.post("/summarize", async (req, res) => {
         // Summarization is now delegated to the active provider service.
         const summary = await aiService.summarize(text);
 
-        // Automatically save/index the page
+        // Automatically save/index the page into permanent memory.
         if (url && title) {
             try {
                 await savePage({ url, title, content: text });
@@ -60,6 +61,15 @@ app.post("/summarize", async (req, res) => {
         res.json({
             summary
         });
+
+        // Fire-and-forget: warm the live RAG index in the background so the
+        // first /ask on this page has near-zero extra latency.  Errors here
+        // are non-fatal — /ask has its own fallback if the index is missing.
+        if (url && text) {
+            indexPageChunks(url, text).catch((err) => {
+                console.warn("[liveRag] Background indexing failed for", url, err?.message);
+            });
+        }
     } catch (error) {
         console.error(error);
         sendFriendlyAiError(res, "summary", error, "Failed to generate summary.");
@@ -68,10 +78,45 @@ app.post("/summarize", async (req, res) => {
 
 app.post("/ask", async (req, res) => {
     try {
-        const { text, question } = req.body || {};
+        const { text, question, url } = req.body || {};
 
-        // Question answering is also delegated to the active provider service.
-        const answer = await aiService.ask(text, question);
+        let answer;
+
+        // --- Live RAG path ---
+        // Try to retrieve the top-5 most relevant chunks for this question.
+        // If the live index for this URL is missing or stale, ensure it is
+        // built now (on-demand fallback for users who skip /summarize).
+        try {
+            if (url && text) {
+                // indexPageChunks is idempotent + TTL-aware: returns immediately
+                // when a fresh entry already exists (warmed by /summarize).
+                await indexPageChunks(url, text);
+            }
+
+            const relevantChunks = url
+                ? await retrieveRelevantChunks(url, question, 5)
+                : [];
+
+            if (relevantChunks.length > 0) {
+                // Feed only the relevant chunks to the LLM instead of the
+                // raw truncated page text — this is the real RAG path.
+                const context = relevantChunks
+                    .map((chunk, i) => `[${i + 1}] ${chunk}`)
+                    .join("\n\n");
+                answer = await aiService.ask(context, question);
+            }
+        } catch (ragError) {
+            // RAG failed (e.g. embedding API down) — log and fall through to
+            // the truncated-text path so the feature never hard-breaks.
+            console.warn("[liveRag] RAG retrieval failed, falling back to full text:", ragError?.message);
+        }
+
+        // --- Truncated-text fallback path ---
+        // Used when: (a) RAG returned no chunks, (b) url was not supplied,
+        // or (c) the embedding step threw an error.
+        if (!answer) {
+            answer = await aiService.ask(text, question);
+        }
 
         res.json({
             answer

@@ -307,3 +307,4 @@ module.exports = {
     searchSimilarChunks,
     getPageById
 };
+// cosineSimilarity is also used by liveRagService for live-page RAG retrieval.

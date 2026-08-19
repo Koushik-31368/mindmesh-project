@@ -334,7 +334,7 @@ function setupPageTab() {
                         const res  = await fetch(`${BACKEND}/ask`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ text: response.text, question }),
+                            body: JSON.stringify({ text: response.text, question, url: response.url }),
                             signal: AbortSignal.timeout(20000)
                         });
                         const data = await res.json();
