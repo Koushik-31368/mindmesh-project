@@ -60,13 +60,19 @@ async function fetchPageText(url) {
 
 /**
  * Score one answer against its expected keywords.
+ *
+ * Normalization applied to both answer and keyword before matching:
+ *  - Unicode dash variants → ASCII '-'
+ *  - Internal whitespace collapsed → single space, then all spaces removed
+ *    so "25 %" matches "25%" and "90 seconds" matches "90seconds" etc.
+ *  - Lowercased
  */
 function scoreAnswer(answer, expectedKeywords) {
-    // Normalize all unicode dash/hyphen variants to ASCII '-' before matching.
-    // This prevents failures like \u2010 (non-breaking hyphen) vs '-' in
-    // LLM-generated text (e.g. "ball\u2010tampering" vs "ball-tampering").
     const DASH_RE = /[\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]/g;
-    const normalize = (s) => s.replace(DASH_RE, "-").toLowerCase();
+    const normalize = (s) =>
+        s.replace(DASH_RE, "-")   // unicode dashes → ASCII
+         .replace(/\s+/g, "")     // collapse ALL whitespace ("25 %" → "25%")
+         .toLowerCase();
 
     const normAnswer = normalize(answer);
     const hits   = [];
