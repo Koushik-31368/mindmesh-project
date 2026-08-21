@@ -16,7 +16,7 @@
 
 require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
 
-const EVAL_DATASET = require("./evalDataset");
+const { EVAL_DATASET } = require("./evalDataset");
 const { indexPageChunks, retrieveRelevantChunks } = require("../services/liveRagService");
 const { createAiService } = require("../services/providerFactory");
 
@@ -62,11 +62,17 @@ async function fetchPageText(url) {
  * Score one answer against its expected keywords.
  */
 function scoreAnswer(answer, expectedKeywords) {
-    const lowerAnswer = answer.toLowerCase();
+    // Normalize all unicode dash/hyphen variants to ASCII '-' before matching.
+    // This prevents failures like \u2010 (non-breaking hyphen) vs '-' in
+    // LLM-generated text (e.g. "ball\u2010tampering" vs "ball-tampering").
+    const DASH_RE = /[\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]/g;
+    const normalize = (s) => s.replace(DASH_RE, "-").toLowerCase();
+
+    const normAnswer = normalize(answer);
     const hits   = [];
     const misses = [];
     for (const kw of expectedKeywords) {
-        if (lowerAnswer.includes(kw.toLowerCase())) {
+        if (normAnswer.includes(normalize(kw))) {
             hits.push(kw);
         } else {
             misses.push(kw);
@@ -77,7 +83,28 @@ function scoreAnswer(answer, expectedKeywords) {
 
 function truncate(str, maxLen = 200) {
     if (!str || str.length <= maxLen) return str;
-    return str.slice(0, maxLen).trimEnd() + "…";
+    return str.slice(0, maxLen).trimEnd() + "\u2026";
+}
+
+/**
+ * Ask the AI once, and retry once if it throws a transient provider 500.
+ * This absorbs infra noise (Groq 500s) without inflating the FAIL count.
+ */
+async function askWithRetry(context, question) {
+    try {
+        return await aiService.ask(context, question);
+    } catch (err) {
+        // Retry once on provider-side 500s (e.g. Groq "Failed to answer")
+        const is500 = err.message && (
+            err.message.includes("500") ||
+            err.message.includes("Failed to answer") ||
+            err.message.includes("unavailable")
+        );
+        if (!is500) throw err;
+        console.log(YELLOW("  [auto-retry] provider 500 — waiting 5s then retrying once…"));
+        await new Promise((r) => setTimeout(r, 5000));
+        return await aiService.ask(context, question);
+    }
 }
 
 // ── Main runner ───────────────────────────────────────────────────────────────
@@ -121,7 +148,7 @@ async function runEval() {
     // All 15 cases share the same David Warner URL — we embed it once and all
     // questions hit the warm in-memory cache. This avoids 15x quota exhaustion.
     const uniqueUrls = [...new Set(runnable.map((c) => c.url))];
-    const embedDelay = Number(process.env.EMBED_DELAY_MS ?? 4000);
+    const embedDelay = Number(process.env.EMBED_DELAY_MS ?? 10000);
 
     console.log(BOLD(`Phase 1 — Pre-indexing ${uniqueUrls.length} unique URL(s)`));
     console.log(DIM(`  Rate-limit delay between chunks: ${embedDelay}ms`));
@@ -169,11 +196,11 @@ async function runEval() {
             chunks = await retrieveRelevantChunks(url, question, 5);
             process.stdout.write(GREEN(`${chunks.length} chunk(s)\n`));
 
-            // Generate answer from retrieved chunks
+            // Generate answer from retrieved chunks (with single auto-retry on 500)
             process.stdout.write("  Generating answer… ");
             if (chunks.length > 0) {
                 const context = chunks.map((c, idx) => `[${idx + 1}] ${c}`).join("\n\n");
-                answer = await aiService.ask(context, question);
+                answer = await askWithRetry(context, question);
             } else {
                 answer = "(no chunks retrieved — URL may not have been indexed successfully)";
             }
@@ -201,7 +228,8 @@ async function runEval() {
         // ── Answer vs expected ─────────────────────────────────────────────
         console.log(CYAN("\n  ── Answer Quality ──"));
         console.log(`  Expected   : ${DIM(truncate(expectedAnswer, 200))}`);
-        console.log(`  Actual     : ${truncate(answer, 200)}`);
+        console.log(`  Actual     : ${answer || "(empty)"}`);
+        console.log(`  Full answer: ${answer}`);
         console.log(`  Keywords   : expected [${expectedKeywords.join(", ")}]`);
         console.log(`             : hits   → ${GREEN(score.hits.join(", ") || "none")}`);
         if (score.misses.length > 0) {
@@ -247,6 +275,25 @@ async function runEval() {
     } else {
         console.log(RED("  ❌ Hit rate < 60% — retrieval needs work.\n"));
     }
+
+    // ── Per-page breakdown ────────────────────────────────────────────────────
+    const pageGroups = {};
+    for (const r of results) {
+        const page = r.url.includes("David_Warner") ? "David Warner (cricket)"
+                   : r.url.includes("Chernobyl")    ? "Chernobyl disaster"
+                   : new URL(r.url).pathname.replace(/\/_?\//, "").slice(0, 30);
+        if (!pageGroups[page]) pageGroups[page] = [];
+        pageGroups[page].push(r);
+    }
+
+    console.log(BOLD("\n  ── Per-page hit rates ──"));
+    for (const [page, cases] of Object.entries(pageGroups)) {
+        const pagePassed  = cases.filter((r) => r.score.passed && !r.error).length;
+        const pageRate    = ((pagePassed / cases.length) * 100).toFixed(0);
+        const color       = pageRate >= 80 ? GREEN : pageRate >= 60 ? YELLOW : RED;
+        console.log(`  ${page.padEnd(28)} ${color(pageRate + "%")} (${pagePassed}/${cases.length})`);
+    }
+    console.log();
 }
 
 runEval().catch((err) => {

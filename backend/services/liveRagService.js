@@ -8,6 +8,11 @@ const { cosineSimilarity } = require("./memory/memoryService");
 // a stale cache.
 const TTL_MS = Number(process.env.LIVE_RAG_TTL_MS || 30 * 60 * 1000); // 30 min
 
+// Delay in ms between consecutive embedding calls to stay under free-tier RPM limits.
+const EMBED_DELAY_MS = Number(process.env.EMBED_DELAY_MS || 10000);
+
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
 // In-memory store.  Keyed by URL string.
 // Each value: { chunks: string[], embeddings: number[][], timestamp: number }
 const store = new Map();
@@ -72,10 +77,13 @@ async function indexPageChunks(url, pageText) {
         return;
     }
 
-    // Embed each chunk sequentially to avoid hammering the API.
+    // Embed each chunk sequentially with a delay to avoid hammering the free-tier API.
     const embeddings = [];
-    for (const chunk of chunks) {
-        const vector = await generateEmbedding(chunk);
+    for (let i = 0; i < chunks.length; i++) {
+        if (i > 0 && EMBED_DELAY_MS > 0) {
+            await sleep(EMBED_DELAY_MS);
+        }
+        const vector = await generateEmbedding(chunks[i]);
         embeddings.push(vector);
     }
 

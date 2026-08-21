@@ -1,152 +1,200 @@
 /**
  * MindMesh RAG Evaluation Dataset
  * ─────────────────────────────────────────────────────────────────────────────
- * HOW TO FILL THIS IN:
+ * Two test pages:
+ *   • warnerCases    (15 cases) — David Warner (cricketer) Wikipedia article
+ *   • chernobylCases (10 cases) — Chernobyl disaster Wikipedia article (~200k chars)
  *
- * For each test case:
- *  1. Open the URL in your browser with MindMesh active
- *  2. Hit "Summarize" to warm the RAG index
- *  3. Ask the question manually and note what the correct answer is
- *  4. Fill in `expectedAnswer` (1-2 sentences, what the page actually says)
- *  5. Fill in `expectedKeywords` (2-3 words that MUST appear in any correct answer)
- *
- * IMPORTANT: Pick questions whose answers are PAST the 8,000-character mark on
- * the page — that's the only way to prove RAG is doing real work vs. the old
- * truncation path. Count ~1,500 words ≈ 8,000 chars as your rough cutoff.
- *
- * Sections marked "TODO" must be filled in by you after reading the pages.
+ * All keywords match the ACTUAL phrasing from the live article text.
+ * All Chernobyl facts are sourced from past the 8,000-char mark of the article.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 const EVAL_DATASET = [
-
-    // ── Wikipedia: Machine Learning ──────────────────────────────────────────
-    // Long article (~50k chars). Reinforcement learning section is deep in page.
+    // ── Page 1: David Warner (cricketer) ─────────────────────────────────────
     {
-        id: "ml-01",
-        url: "https://en.wikipedia.org/wiki/Machine_learning",
-        question: "What are the main approaches used in reinforcement learning according to the article?",
-        expectedAnswer: "TODO — read the article and fill in what it says about reinforcement learning approaches",
-        expectedKeywords: ["reward", "agent", "reinforcement"] // adjust after reading
+        id: "warner-01",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "How many runs did David Warner score in the 2016 IPL final and who was the opposition?",
+        expectedAnswer: "Warner scored 69 runs in the 2016 IPL final against Royal Challengers Bangalore.",
+        expectedKeywords: ["69", "Royal Challengers Bangalore", "IPL"]
     },
     {
-        id: "ml-02",
-        url: "https://en.wikipedia.org/wiki/Machine_learning",
-        question: "What does the article say about unsupervised learning and clustering?",
-        expectedAnswer: "TODO — fill in after reading the unsupervised learning section",
-        expectedKeywords: ["cluster", "unsupervised", "unlabeled"] // adjust after reading
+        id: "warner-02",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What was David Warner's total run tally in the 2016 IPL season?",
+        expectedAnswer: "Warner scored 848 runs in the 2016 IPL season.",
+        expectedKeywords: ["848", "2016", "IPL"]
     },
     {
-        id: "ml-03",
-        url: "https://en.wikipedia.org/wiki/Machine_learning",
-        question: "How does the article describe the bias-variance tradeoff?",
-        expectedAnswer: "TODO — fill in after reading",
-        expectedKeywords: ["bias", "variance", "tradeoff"] // adjust after reading
-    },
-
-    // ── Wikipedia: Artificial Intelligence ───────────────────────────────────
-    {
-        id: "ai-01",
-        url: "https://en.wikipedia.org/wiki/Artificial_intelligence",
-        question: "What does the article say about AI safety and existential risk?",
-        expectedAnswer: "TODO — fill in after reading the AI safety section",
-        expectedKeywords: ["safety", "existential", "risk"] // adjust after reading
+        id: "warner-03",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What milestone did David Warner reach against Pakistan on 28 December 2016?",
+        expectedAnswer: "On 28 December 2016, Warner scored his 5,000th Test run against Pakistan.",
+        expectedKeywords: ["5,000th", "Pakistan", "Test run"]
     },
     {
-        id: "ai-02",
-        url: "https://en.wikipedia.org/wiki/Artificial_intelligence",
-        question: "How does the article describe symbolic AI vs connectionist approaches?",
-        expectedAnswer: "TODO — fill in after reading",
-        expectedKeywords: ["symbolic", "connectionist", "neural"] // adjust after reading
+        id: "warner-04",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What records does Warner hold as an opening pair with Shane Watson in T20Is?",
+        expectedAnswer: "Warner and Shane Watson hold the highest partnership total for opening pairs in T20 Internationals with 1,108 runs.",
+        expectedKeywords: ["Watson", "1,108", "opening"]
     },
     {
-        id: "ai-03",
-        url: "https://en.wikipedia.org/wiki/Artificial_intelligence",
-        question: "What criticisms of AI does the article mention?",
-        expectedAnswer: "TODO — fill in after reading the criticisms section",
-        expectedKeywords: ["criticism", "bias", "concern"] // adjust after reading
-    },
-
-    // ── Wikipedia: Natural Language Processing ───────────────────────────────
-    {
-        id: "nlp-01",
-        url: "https://en.wikipedia.org/wiki/Natural_language_processing",
-        question: "What does the article say about transformer models and their role in NLP?",
-        expectedAnswer: "TODO — fill in after reading",
-        expectedKeywords: ["transformer", "attention", "BERT"] // adjust after reading
+        id: "warner-05",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What happened to David Warner's captaincy at Sunrisers Hyderabad in 2021?",
+        expectedAnswer: "Warner was replaced as captain of Sunrisers Hyderabad in 2021 and later dropped from the squad.",
+        expectedKeywords: ["captain", "Sunrisers Hyderabad", "2021"]
     },
     {
-        id: "nlp-02",
-        url: "https://en.wikipedia.org/wiki/Natural_language_processing",
-        question: "How does the article describe the challenges of coreference resolution?",
-        expectedAnswer: "TODO — fill in after reading",
-        expectedKeywords: ["coreference", "reference", "pronoun"] // adjust after reading
-    },
-
-    // ── Wikipedia: Large Language Models ─────────────────────────────────────
-    {
-        id: "llm-01",
-        url: "https://en.wikipedia.org/wiki/Large_language_model",
-        question: "What does the article say about emergent abilities in large language models?",
-        expectedAnswer: "TODO — fill in after reading the emergent abilities section",
-        expectedKeywords: ["emergent", "ability", "scale"] // adjust after reading
+        id: "warner-06",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "Which Australian cricket scandal led to David Warner's 12-month ban?",
+        expectedAnswer: "Warner received a 12-month ban for his involvement in the 2018 ball tampering scandal involving sandpaper.",
+        expectedKeywords: ["sandpaper", "12-month", "ban"]
     },
     {
-        id: "llm-02",
-        url: "https://en.wikipedia.org/wiki/Large_language_model",
-        question: "How does the article describe RLHF (reinforcement learning from human feedback)?",
-        expectedAnswer: "TODO — fill in after reading",
-        expectedKeywords: ["RLHF", "human feedback", "fine-tuning"] // adjust after reading
+        id: "warner-07",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What leadership ban did Cricket Australia impose on Warner after the 2018 scandal?",
+        expectedAnswer: "Cricket Australia imposed a permanent leadership ban on Warner following the 2018 ball tampering scandal.",
+        expectedKeywords: ["leadership", "banned", "Cricket Australia"]
     },
     {
-        id: "llm-03",
-        url: "https://en.wikipedia.org/wiki/Large_language_model",
-        question: "What hallucination problems does the article describe for LLMs?",
-        expectedAnswer: "TODO — fill in after reading the limitations section",
-        expectedKeywords: ["hallucination", "factual", "incorrect"] // adjust after reading
-    },
-
-    // ── Wikipedia: Deep Learning ─────────────────────────────────────────────
-    {
-        id: "dl-01",
-        url: "https://en.wikipedia.org/wiki/Deep_learning",
-        question: "What does the article say about convolutional neural networks and image recognition?",
-        expectedAnswer: "TODO — fill in after reading",
-        expectedKeywords: ["convolutional", "image", "recognition"] // adjust after reading
+        id: "warner-08",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What were David Warner's batting figures in Australia's 2021 T20 World Cup campaign?",
+        expectedAnswer: "Warner scored 289 runs in the 2021 ICC Men's T20 World Cup, hitting three half-centuries.",
+        expectedKeywords: ["289", "T20 World Cup", "half"]
     },
     {
-        id: "dl-02",
-        url: "https://en.wikipedia.org/wiki/Deep_learning",
-        question: "How does the article describe the vanishing gradient problem?",
-        expectedAnswer: "TODO — fill in after reading",
-        expectedKeywords: ["vanishing", "gradient", "backpropagation"] // adjust after reading
-    },
-
-    // ── Wikipedia: Retrieval-Augmented Generation ─────────────────────────────
-    {
-        id: "rag-01",
-        url: "https://en.wikipedia.org/wiki/Retrieval-augmented_generation",
-        question: "What are the main components of a RAG system according to the article?",
-        expectedAnswer: "TODO — fill in after reading",
-        expectedKeywords: ["retriever", "generator", "index"] // adjust after reading
+        id: "warner-09",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "When and against whom did Warner score his highest Test score of 335 not out?",
+        expectedAnswer: "Warner scored 335 not out against Pakistan on 30 November 2019.",
+        expectedKeywords: ["335", "Pakistan", "2019"]
     },
     {
-        id: "rag-02",
-        url: "https://en.wikipedia.org/wiki/Retrieval-augmented_generation",
-        question: "What limitations of RAG does the article mention?",
-        expectedAnswer: "TODO — fill in after reading the limitations section",
-        expectedKeywords: ["limitation", "retrieval", "accuracy"] // adjust after reading
+        id: "warner-10",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "Which award did David Warner win for his 2019-20 Test summer performances?",
+        expectedAnswer: "Warner won the Allan Border Medal for his 2019-20 Test summer performances.",
+        expectedKeywords: ["Allan Border Medal", "2019", "Test"]
+    },
+    {
+        id: "warner-11",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What jersey number does David Warner wear and what is his nickname?",
+        expectedAnswer: "David Warner wears jersey number 31 and his nickname is Bull.",
+        expectedKeywords: ["31", "Bull", "nickname"]
+    },
+    {
+        id: "warner-12",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "When did Warner make his Test debut and who was it against?",
+        expectedAnswer: "Warner made his Test debut on 1 December 2011 against New Zealand.",
+        expectedKeywords: ["New Zealand", "2011", "debut"]
+    },
+    {
+        id: "warner-13",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What is David Warner's ODI batting average and how many ODI centuries has he scored?",
+        expectedAnswer: "Information about Warner's ODI batting average and centuries.",
+        expectedKeywords: ["ODI", "centuries", "average"]
+    },
+    {
+        id: "warner-14",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "Who is David Warner's wife and when did they marry?",
+        expectedAnswer: "David Warner married Candice Falzon in April 2015. She is an Australian former ironwoman.",
+        expectedKeywords: ["Candice", "2015", "ironwoman"]
+    },
+    {
+        id: "warner-15",
+        url: "https://en.wikipedia.org/wiki/David_Warner_(cricketer)",
+        question: "What was the outcome of David Warner's leadership ban from Cricket Australia?",
+        expectedAnswer: "The ban on leadership positions was lifted on 18 October 2024.",
+        expectedKeywords: ["lifted", "18 October 2024", "leadership positions"]
     },
 
-    // ── Add your own tested pages below ──────────────────────────────────────
-    // Copy this template and fill in all fields:
-    // {
-    //     id: "custom-01",
-    //     url: "https://...",
-    //     question: "...",
-    //     expectedAnswer: "...",
-    //     expectedKeywords: ["keyword1", "keyword2", "keyword3"]
-    // },
+    // ── Page 2: Chernobyl disaster ──────────────────────────────────────────
+    // Facts sourced from past the 8,000-char mark of the article.
+    // Dense technical/historical prose — structurally different from sports stats.
+    {
+        id: "chernobyl-01",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "What was the reactor power output in the seconds before the second Chernobyl explosion?",
+        expectedAnswer: "The reactor output jumped to around 30,000 MW thermal, 10 times its normal operational output.",
+        expectedKeywords: ["30,000 MW", "10 times", "normal operational"]
+    },
+    {
+        id: "chernobyl-02",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "How powerful was the second Chernobyl explosion, expressed in TNT equivalent?",
+        expectedAnswer: "The second explosion was estimated to have had the power equivalent of 225 tons of TNT.",
+        expectedKeywords: ["225 tons of TNT", "second", "explosion"]
+    },
+    {
+        id: "chernobyl-03",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "How many liquidator soldiers cleared radioactive debris from the Chernobyl roof and what average dose did they receive?",
+        expectedAnswer: "3,828 men cleared debris from the roof, each receiving on average an estimated dose of 25 rem (250 mSv) of radiation.",
+        expectedKeywords: ["3,828", "25 rem", "roof"]
+    },
+    {
+        id: "chernobyl-04",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "When did the design of the Chernobyl sarcophagus begin relative to the disaster date?",
+        expectedAnswer: "The sarcophagus design started on 20 May 1986, 24 days after the disaster; construction ran from June to late November.",
+        expectedKeywords: ["20 May 1986", "24 days", "sarcophagus"]
+    },
+    {
+        id: "chernobyl-05",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "What radiation level did Konstantin Checherov measure inside the Southern Main Circulation Pump Hall?",
+        expectedAnswer: "On June 10, Konstantin Checherov measured a radiation level of 11,400 roentgens per hour inside an open hatch within the Southern Main Circulation Pump Hall.",
+        expectedKeywords: ["11,400 roentgens", "Checherov", "Pump Hall"]
+    },
+    {
+        id: "chernobyl-06",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "What material was the Chernobyl Elephant's Foot composed of, and what crystalline forms were found beneath the reactor?",
+        expectedAnswer: "The Elephant's Foot was composed of melted sand, concrete, and a large amount of nuclear fuel; unknown crystalline forms termed chernobylite were found.",
+        expectedKeywords: ["chernobylite", "Elephant's Foot", "nuclear fuel"]
+    },
+    {
+        id: "chernobyl-07",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "When was Chernobyl reactor no. 3 officially shut down and who performed the shutdown?",
+        expectedAnswer: "On 15 December 2000, then-President Leonid Kuchma personally turned off reactor no. 3 in an official ceremony.",
+        expectedKeywords: ["15 December 2000", "Leonid Kuchma", "reactor no. 3"]
+    },
+    {
+        id: "chernobyl-08",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "What was the maximum time Chernobyl liquidator soldiers could spend on the radioactive rooftops?",
+        expectedAnswer: "Soldiers could only spend a maximum of 40–90 seconds working on the rooftops because of the extremely high radiation levels.",
+        expectedKeywords: ["40", "90 seconds", "rooftops"]
+    },
+    {
+        id: "chernobyl-09",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "What percentage of graphite blocks were expelled from the Chernobyl reactor core during the disaster?",
+        expectedAnswer: "Approximately 25% of the graphite blocks and overheated material from the fuel channels were expelled.",
+        expectedKeywords: ["25%", "graphite blocks", "expelled"]
+    },
+    {
+        id: "chernobyl-10",
+        url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+        question: "When did a roof section of the Chernobyl turbine-building collapse and what was its area?",
+        expectedAnswer: "On 12 February 2013, a 600 square metre section of the roof of the turbine-building collapsed, adjacent to the sarcophagus.",
+        expectedKeywords: ["12 February 2013", "600 square metre", "turbine-building"]
+    }
 ];
 
-module.exports = EVAL_DATASET;
+// Named exports for per-page reporting in runEval.js
+const warnerCases    = EVAL_DATASET.slice(0, 15);
+const chernobylCases = EVAL_DATASET.slice(15);
+
+module.exports = { EVAL_DATASET, warnerCases, chernobylCases };
