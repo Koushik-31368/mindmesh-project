@@ -16,7 +16,10 @@ const port = process.env.PORT || 3000;
 // The selected provider is hidden behind a factory so the route handlers stay stable.
 const aiService = createAiService();
 
-app.use(cors());
+// CORS — allow all origins for this personal project.
+// In a production multi-user app, restrict this to your specific extension ID:
+//   origin: ["chrome-extension://<YOUR_EXTENSION_ID>"]
+app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: "2mb" }));
 app.use("/api/memory", memoryRoutes);
 app.use("/api/security", securityRoutes);
@@ -132,5 +135,6 @@ app.get("/health", (_req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`MindMesh backend listening on http://localhost:${port}`);
+    const host = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
+    console.log(`MindMesh backend listening on port ${port} (${host})`);
 });

@@ -11,7 +11,8 @@
   ],
   "host_permissions": [
     "<all_urls>",
-    "http://localhost:3000/*"
+    "http://localhost:3000/*",
+    "https://mindmesh-project.onrender.com/*"
   ],
   "action": {
     "default_icon": {

@@ -21,7 +21,11 @@ function getChrome() {
     };
 }
 
-const BACKEND = "http://localhost:3000";
+// ── Backend URL ──────────────────────────────────────────────────────────────
+// Single source of truth — change this one line to swap environments.
+// Local dev : "http://localhost:3000"
+// Production: "https://mindmesh-project.onrender.com"
+const BACKEND = "https://mindmesh-project.onrender.com";
 let isBackendAvailable = false;
 let isProcessing = false;
 
@@ -283,7 +287,7 @@ function setupPageTab() {
                             if (data.summary) checkRelatedMemory(response.text, response.url);
                         }
                     } catch (err) {
-                        resultBox.innerHTML = `<div class="empty-hint" style="color:var(--danger-red);">${err.name === "TimeoutError" ? "Request timed out." : "Backend unavailable. Is it running on localhost:3000?"}</div>`;
+                        resultBox.innerHTML = `<div class="empty-hint" style="color:var(--danger-red);">${err.name === "TimeoutError" ? "Request timed out." : "Backend unavailable. Check the Render service status."}</div>`;;
                     } finally {
                         setProcessingState([summaryBtn, askBtn], false, "Summarize Page");
                     }
