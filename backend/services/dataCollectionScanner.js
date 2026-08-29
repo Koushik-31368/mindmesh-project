@@ -1,3 +1,9 @@
+/**
+ * Scan page HTML for personal data collection indicators.
+ * Detects email, phone, password, address, DOB, and location fields.
+ * @param {string} html - Raw HTML content of the page.
+ * @returns {object} Boolean flags for each data category.
+ */
 function scanDataCollection(html) {
     const lowerHtml = html.toLowerCase();
 
