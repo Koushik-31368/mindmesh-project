@@ -1,3 +1,7 @@
+/**
+ * Security Service — Orchestrates heuristic scanning and AI verification
+ * to produce a composite safety verdict for any given webpage.
+ */
 const { scanPage } = require("./heuristicScanner");
 const { verifySecurity } = require("./aiSecurityVerifier");
 
