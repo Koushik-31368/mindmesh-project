@@ -1,3 +1,9 @@
+/**
+ * MindMesh Content Script
+ * Injected into every webpage to provide the floating launcher and sidebar
+ * dashboard via Shadow DOM isolation. Manages INACTIVE → LAUNCHER → DASHBOARD
+ * state transitions with sessionStorage persistence across navigations.
+ */
 (() => {
     if (window.hasMindMeshCopilotLoaded) {
         console.log("[MindMesh Copilot] content.js is already active. Bypassing duplicate initialization.");
