@@ -1,3 +1,8 @@
+/**
+ * MindMesh Background Service Worker (Manifest V3)
+ * Handles toolbar icon clicks, programmatic content script injection,
+ * and badge state management for the floating assistant.
+ */
 console.log("MindMesh background service worker initialized");
 
 chrome.action.onClicked.addListener(async (tab) => {
