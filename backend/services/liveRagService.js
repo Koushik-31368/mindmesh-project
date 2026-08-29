@@ -1,3 +1,8 @@
+/**
+ * Live RAG Service — In-memory chunk index for real-time page Q&A.
+ * Chunks and embeds the current page text with TTL-based cache eviction,
+ * enabling the /ask endpoint to retrieve only the most relevant context.
+ */
 const { chunkText } = require("./memory/chunkerService");
 const { generateEmbedding } = require("./memory/embeddingService");
 const { cosineSimilarity } = require("./memory/memoryService");
