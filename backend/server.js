@@ -1,3 +1,8 @@
+/**
+ * MindMesh Backend Server
+ * Entry point for the Express application that serves all API routes
+ * including summarization, Q&A, memory, security, privacy, and graph endpoints.
+ */
 require("dotenv").config();
 
 const express = require("express");
