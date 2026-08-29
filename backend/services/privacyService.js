@@ -1,3 +1,7 @@
+/**
+ * Privacy Service — Coordinates tracker scanning, data collection detection,
+ * privacy policy discovery/analysis, and AI-powered privacy summaries.
+ */
 const { scanTrackers } = require("./trackerScanner");
 const { scanDataCollection } = require("./dataCollectionScanner");
 const { analyzePolicy } = require("./privacyPolicyAnalyzer");
