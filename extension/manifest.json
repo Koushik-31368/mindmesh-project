@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "MindMesh",
   "version": "1.0",
-  "description": "AI-powered webpage assistant",
+  "description": "AI-powered browsing assistant with semantic memory, knowledge graphs, and security analysis",
   "permissions": [
     "activeTab",
     "scripting",
