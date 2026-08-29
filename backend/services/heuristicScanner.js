@@ -246,6 +246,11 @@ function analyzeForms(html) {
     return { penalty, reasons, hasPasswordFields };
 }
 
+/**
+ * Run all heuristic safety checks on a page and produce a composite score.
+ * @param {{ url: string, pageText: string, html: string }} params
+ * @returns {{ score: number, reasons: string[], details: object }}
+ */
 function scanPage({ url, pageText, html }) {
     const formResult = analyzeForms(html);
     const urlResult = analyzeUrl(url);
