@@ -1,3 +1,8 @@
+/**
+ * Scan page HTML for known third-party tracking scripts.
+ * @param {string} html - Raw HTML content of the page.
+ * @returns {{ count: number, trackers: string[] }} Detected tracker names.
+ */
 function scanTrackers(html) {
     const trackers = [];
 
