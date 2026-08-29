@@ -1,3 +1,8 @@
+/**
+ * Provider Factory — AI Service Abstraction Layer
+ * Creates a unified AI service with automatic failover from Groq (primary)
+ * to Gemini (secondary). Route handlers remain provider-agnostic.
+ */
 const { createGeminiService } = require("./geminiService");
 const { createGroqService } = require("./groqService");
 
