@@ -1,3 +1,9 @@
+/**
+ * Privacy Policy Analyzer
+ * Performs keyword-based analysis of privacy policy text to detect what
+ * categories of personal data a site collects, whether it shares data
+ * with third parties, and whether data retention is mentioned.
+ */
 function analyzePolicy(policyText) {
     const text = policyText.toLowerCase();
 
