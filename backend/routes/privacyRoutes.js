@@ -1,3 +1,8 @@
+/**
+ * Privacy Routes — /api/privacy
+ * Exposes the /analyze endpoint which orchestrates tracker scanning,
+ * data collection detection, policy discovery, and AI-powered summaries.
+ */
 const express = require("express");
 
 const router = express.Router();
