@@ -1,3 +1,8 @@
+/**
+ * Privacy Link Ranker
+ * Sorts discovered privacy-related links by relevance. Links matching
+ * "privacy policy" rank highest, followed by "privacy notice", etc.
+ */
 function rankPrivacyLinks(links) {
     const priorities = [
         "privacy policy",
