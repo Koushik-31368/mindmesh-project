@@ -1,3 +1,9 @@
+/**
+ * Graph Routes — /api/graph
+ * Exposes endpoints for building the knowledge graph, querying it,
+ * hybrid chat (graph + RAG), network visualization data, analytics,
+ * and relationship source lookups.
+ */
 const express = require("express");
 
 const router = express.Router();
