@@ -1,3 +1,8 @@
+/**
+ * Security Routes — /api/security
+ * Exposes the /analyze endpoint which runs the heuristic scanner and
+ * optional AI verification to produce a composite safety verdict.
+ */
 const express = require("express");
 const router = express.Router();
 
