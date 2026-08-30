@@ -34,6 +34,26 @@ function scanTrackers(html) {
         {
             name: "LinkedIn Insight",
             pattern: /snap\.licdn\.com/i
+        },
+        {
+            name: "TikTok Pixel",
+            pattern: /analytics\.tiktok\.com|ttq\.track/i
+        },
+        {
+            name: "Twitter/X Pixel",
+            pattern: /static\.ads-twitter\.com|twq\(/i
+        },
+        {
+            name: "Pinterest Tag",
+            pattern: /pintrk\(|s\.pinimg\.com/i
+        },
+        {
+            name: "Snap Pixel",
+            pattern: /sc-static\.net\/scevent/i
+        },
+        {
+            name: "Microsoft Clarity",
+            pattern: /clarity\.ms/i
         }
     ];
 
