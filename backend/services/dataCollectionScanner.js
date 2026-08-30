@@ -28,7 +28,17 @@ function scanDataCollection(html) {
 
         location:
             lowerHtml.includes("location") ||
-            lowerHtml.includes("geolocation")
+            lowerHtml.includes("geolocation"),
+
+        creditCard:
+            lowerHtml.includes("credit card") ||
+            lowerHtml.includes("card number") ||
+            lowerHtml.includes("cvv"),
+
+        ssn:
+            lowerHtml.includes("social security") ||
+            lowerHtml.includes("ssn") ||
+            lowerHtml.includes("national id")
     };
 }
 

@@ -20,7 +20,8 @@ function calculateRisk(data, trackerCount) {
     if (data.password) score += 15;
     if (data.address) score += 15;
     if (data.location) score += 15;
-
+    if (data.creditCard) score += 20;
+    if (data.ssn) score += 25;
     score += trackerCount * 10;
 
     let level = "Low";
