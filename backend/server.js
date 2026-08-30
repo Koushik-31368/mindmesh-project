@@ -136,7 +136,12 @@ app.post("/ask", async (req, res) => {
 });
 
 app.get("/health", (_req, res) => {
-    res.json({ ok: true });
+    res.json({
+        ok: true,
+        uptime: Math.floor(process.uptime()),
+        version: require("./package.json").version,
+        timestamp: new Date().toISOString()
+    });
 });
 
 app.listen(port, () => {
