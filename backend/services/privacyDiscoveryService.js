@@ -1,3 +1,9 @@
+/**
+ * Privacy Discovery Service
+ * Scans raw page HTML for links that point to privacy policy pages.
+ * Uses regex-based anchor tag extraction and pattern matching to identify
+ * relevant links (e.g., "privacy policy", "data policy").
+ */
 function findPrivacyLinks(html) {
     const patterns = [
         "privacy",
