@@ -102,6 +102,10 @@ app.post("/ask", async (req, res) => {
     try {
         const { text, question, url } = req.body || {};
 
+        if (!question || !String(question).trim()) {
+            return res.status(400).json({ error: "A question is required." });
+        }
+
         let answer;
 
         // --- Live RAG path ---
