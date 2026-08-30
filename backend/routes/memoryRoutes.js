@@ -1,3 +1,8 @@
+/**
+ * Memory Routes — /api/memory
+ * Exposes endpoints for saving pages, listing saved pages, finding related
+ * content via semantic similarity, and chatting with saved memory.
+ */
 const express = require("express");
 const router = express.Router();
 
