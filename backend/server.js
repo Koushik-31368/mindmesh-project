@@ -64,6 +64,10 @@ app.post("/summarize", async (req, res) => {
     try {
         const { text, url, title } = req.body || {};
 
+        if (!text || !String(text).trim()) {
+            return res.status(400).json({ error: "Page text is required for summarization." });
+        }
+
         // Summarization is now delegated to the active provider service.
         const summary = await aiService.summarize(text);
 
