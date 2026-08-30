@@ -1,3 +1,8 @@
+/**
+ * Privacy Fetch Service
+ * Fetches the full text content of a privacy policy page given its URL.
+ * Uses axios for HTTP requests and cheerio for HTML-to-text extraction.
+ */
 const axios = require("axios");
 const cheerio = require("cheerio");
 
