@@ -26,6 +26,16 @@ const aiService = createAiService();
 //   origin: ["chrome-extension://<YOUR_EXTENSION_ID>"]
 app.use(cors({ origin: "*" }));
 app.use(express.json({ limit: "2mb" }));
+
+// Lightweight request logger — logs method, path, status, and duration.
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+        const duration = Date.now() - start;
+        console.log(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
+    });
+    next();
+});
 app.use("/api/memory", memoryRoutes);
 app.use("/api/security", securityRoutes);
 app.use("/api/privacy", privacyRoutes);
