@@ -12,4 +12,19 @@ backend/data/*.sqlite
 desktop.ini
 .DS_Store
 *.log
-
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+
+# Build artifacts
+dist/
+build/
+*.tgz
