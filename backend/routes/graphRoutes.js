@@ -122,6 +122,12 @@ router.get("/analytics", async (req, res) => {
     }
 });
 
+/**
+ * GET /api/graph/source/:relationshipId
+ * Returns the source page that produced a given relationship.
+ * @param {string} req.params.relationshipId - The relationship ID to look up
+ * @returns {object} Source page details or 404
+ */
 router.get("/source/:relationshipId", async (req, res) => {
     try {
         const source = await graphService.getRelationshipSource(req.params.relationshipId);
