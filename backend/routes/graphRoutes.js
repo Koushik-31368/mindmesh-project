@@ -19,6 +19,11 @@ const {
 const graphService =
     createGraphService();
 
+/**
+ * POST /api/graph/build
+ * Rebuilds the full knowledge graph from all saved memory pages.
+ * @returns {object} Build result with node/edge counts
+ */
 router.post("/build", async (req, res) => {
 
     try {
