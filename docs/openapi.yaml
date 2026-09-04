@@ -1,0 +1,144 @@
+openapi: 3.0.3
+info:
+  title: MindMesh API
+  description: Backend API for MindMesh — a privacy-aware knowledge graph browser extension.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /api/memory/save:
+    post:
+      summary: Save a page to memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:   { type: string }
+                title: { type: string }
+                text:  { type: string }
+                html:  { type: string }
+      responses:
+        "200":
+          description: Page saved successfully
+  /api/memory/pages:
+    get:
+      summary: List all saved pages
+      responses:
+        "200":
+          description: Array of saved pages
+  /api/memory/related:
+    post:
+      summary: Find semantically related pages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:       { type: string }
+                currentUrl: { type: string }
+      responses:
+        "200":
+          description: Related page or not found
+  /api/memory/chat:
+    post:
+      summary: Chat with saved memory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question: { type: string }
+      responses:
+        "200":
+          description: Answer from memory
+  /api/graph/build:
+    post:
+      summary: Build the knowledge graph
+      responses:
+        "200":
+          description: Build result
+  /api/graph/stats:
+    get:
+      summary: Get graph statistics
+      responses:
+        "200":
+          description: Graph stats
+  /api/graph/network:
+    get:
+      summary: Get Cytoscape network data
+      responses:
+        "200":
+          description: Node and edge data
+  /api/graph/query:
+    post:
+      summary: Query the graph
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question: { type: string }
+      responses:
+        "200":
+          description: Query result
+  /api/graph/chat:
+    post:
+      summary: Hybrid graph + RAG chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question: { type: string }
+      responses:
+        "200":
+          description: Hybrid answer
+  /api/privacy/analyze:
+    post:
+      summary: Analyze page privacy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:        { type: string }
+                html:       { type: string }
+                policyText: { type: string }
+      responses:
+        "200":
+          description: Privacy analysis result
+  /api/security/analyze:
+    post:
+      summary: Analyze page security
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:      { type: string }
+                pageText: { type: string }
+                html:     { type: string }
+      responses:
+        "200":
+          description: Security verdict
