@@ -54,6 +54,11 @@ router.post("/related", async (req, res) => {
     }
 });
 
+/**
+ * POST /api/memory/save
+ * Persists a new page into the memory store with embeddings.
+ * @param {object} req.body - Page data (url, title, text, html)
+ */
 router.post("/save", async (req, res) => {
     try {
         const result = await savePage(req.body);
