@@ -11,6 +11,13 @@ const {
     analyzePrivacy
 } = require("../services/privacyService");
 
+/**
+ * POST /api/privacy/analyze
+ * @param {string} req.body.html - Raw HTML of the page
+ * @param {string} req.body.url  - URL of the page being analyzed
+ * @param {string} req.body.policyText - Optional extracted policy text
+ * @returns {object} Privacy analysis result
+ */
 router.post("/analyze", async (req, res) => {
     try {
         const { html, url, policyText } = req.body;
