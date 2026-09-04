@@ -10,14 +10,6 @@ const {
     analyzePageSafety
 } = require("../services/securityService");
 
-/**
- * POST /api/security/analyze
- * Runs heuristic + AI safety analysis on a given page.
- * @param {string} req.body.url      - Page URL (required)
- * @param {string} req.body.pageText - Visible text content of the page
- * @param {string} req.body.html     - Raw HTML of the page
- * @returns {object} Safety verdict with risk flags
- */
 router.post("/analyze", async (req, res) => {
     try {
         const {
