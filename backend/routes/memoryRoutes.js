@@ -70,11 +70,6 @@ router.post("/save", async (req, res) => {
     }
 });
 
-/**
- * GET /api/memory/pages
- * Returns all pages currently saved in the memory store.
- * @returns {Array<object>} List of saved page records
- */
 router.get("/pages", async (req, res) => {
     try {
         const pages = await getAllPages();
