@@ -22,6 +22,10 @@ router.post("/analyze", async (req, res) => {
     try {
         const { html, url, policyText } = req.body;
 
+        if (!url || !String(url).trim()) {
+            return res.status(400).json({ error: "url is required" });
+        }
+
         const result = await analyzePrivacy(html, url, policyText);
 
         res.json(result);
