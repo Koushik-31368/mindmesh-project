@@ -103,6 +103,11 @@ router.post("/chat", async (req, res) => {
     }
 });
 
+/**
+ * GET /api/graph/network
+ * Returns node and edge data formatted for Cytoscape visualization.
+ * @returns {object} { nodes: [], edges: [] }
+ */
 router.get("/network", async (req, res) => {
     try {
         const network = await graphService.getNetworkData();
