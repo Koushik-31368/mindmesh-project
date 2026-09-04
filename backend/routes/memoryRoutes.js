@@ -14,12 +14,6 @@ const {
 } = require("../services/memory/memoryService");
 const { answerFromMemory } = require("../services/memory/memoryChatService");
 
-/**
- * POST /api/memory/related
- * Finds semantically similar saved pages for the given text snippet.
- * @param {string} req.body.text - Current page text to match against
- * @param {string} req.body.currentUrl - URL to exclude from results
- */
 router.post("/related", async (req, res) => {
     try {
         const { text, currentUrl } = req.body || {};
