@@ -57,6 +57,12 @@ router.get("/stats", async (req, res) => {
     }
 });
 
+/**
+ * POST /api/graph/query
+ * Runs a graph-only query without the RAG memory layer.
+ * @param {string} req.body.question - Natural language question
+ * @returns {object} Graph query result with matched entities
+ */
 router.post("/query", async (req, res) => {
 
     try {
