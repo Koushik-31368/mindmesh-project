@@ -19,6 +19,7 @@ router.post("/analyze", async (req, res) => {
             return res.status(400).json({ error: "url is required and must be a non-empty string" });
         }
 
+        // Note: html is passed directly to the service; sanitization is handled there
         const result = await analyzePrivacy(html, url, policyText);
 
         res.json(result);
