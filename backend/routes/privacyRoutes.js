@@ -15,6 +15,10 @@ router.post("/analyze", async (req, res) => {
     try {
         const { html, url, policyText } = req.body;
 
+        if (!url || typeof url !== "string" || !url.trim()) {
+            return res.status(400).json({ error: "url is required and must be a non-empty string" });
+        }
+
         const result = await analyzePrivacy(html, url, policyText);
 
         res.json(result);
