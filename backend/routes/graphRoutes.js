@@ -43,11 +43,6 @@ router.post("/build", async (req, res) => {
     }
 });
 
-/**
- * GET /api/graph/stats
- * Returns high-level statistics about the current knowledge graph.
- * @returns {object} Graph stats (node count, edge count, etc.)
- */
 router.get("/stats", async (req, res) => {
 
     try {
