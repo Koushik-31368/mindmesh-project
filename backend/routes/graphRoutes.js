@@ -86,6 +86,12 @@ router.post("/query", async (req, res) => {
     }
 });
 
+/**
+ * POST /api/graph/chat
+ * Hybrid chat: combines knowledge graph traversal with RAG for richer answers.
+ * @param {string} req.body.question - Natural language question
+ * @returns {object} Hybrid answer with graph context
+ */
 router.post("/chat", async (req, res) => {
     try {
         const { question } = req.body;
