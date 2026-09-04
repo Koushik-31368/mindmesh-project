@@ -14,6 +14,9 @@ const {
 } = require("../services/memory/memoryService");
 const { answerFromMemory } = require("../services/memory/memoryChatService");
 
+/** Minimum cosine similarity score to consider a page as "related". */
+const RELATED_SIMILARITY_THRESHOLD = 0.90;
+
 router.post("/related", async (req, res) => {
     try {
         const { text, currentUrl } = req.body || {};
@@ -23,7 +26,7 @@ router.post("/related", async (req, res) => {
 
         const chunks = await searchSimilarChunks(text, 5);
         for (const chunk of chunks) {
-            if (chunk.score > 0.90) {
+            if (chunk.score > RELATED_SIMILARITY_THRESHOLD) {
                 const page = await getPageById(chunk.pageId);
                 if (page && page.url !== currentUrl) {
                     const savedAt = new Date(page.saved_at + 'Z'); // sqlite CURRENT_TIMESTAMP is UTC
