@@ -105,6 +105,11 @@ router.get("/network", async (req, res) => {
     }
 });
 
+/**
+ * GET /api/graph/analytics
+ * Returns degree centrality and other graph analytics metrics.
+ * @returns {object} Analytics data with top nodes by connectivity
+ */
 router.get("/analytics", async (req, res) => {
     try {
         const analytics = await graphService.getAnalytics();
