@@ -38,7 +38,18 @@ function scanDataCollection(html) {
         ssn:
             lowerHtml.includes("social security") ||
             lowerHtml.includes("ssn") ||
-            lowerHtml.includes("national id")
+            lowerHtml.includes("national id"),
+
+        biometric:
+            lowerHtml.includes("fingerprint") ||
+            lowerHtml.includes("face id") ||
+            lowerHtml.includes("biometric") ||
+            lowerHtml.includes("retina scan"),
+
+        ipAddress:
+            lowerHtml.includes("ip address") ||
+            lowerHtml.includes("your ip") ||
+            lowerHtml.includes("ip logging")
     };
 }
 
