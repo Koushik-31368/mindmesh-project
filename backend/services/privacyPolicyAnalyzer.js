@@ -41,12 +41,7 @@ function analyzePolicy(policyText) {
         retentionMentioned:
             text.includes("retention") ||
             text.includes("retain") ||
-            text.includes("storage period"),
-
-        sellsData:
-            text.includes("sell your data") ||
-            text.includes("sell personal information") ||
-            text.includes("do not sell")
+            text.includes("storage period")
     };
 }
 
