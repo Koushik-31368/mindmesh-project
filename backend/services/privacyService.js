@@ -28,6 +28,7 @@ function calculateRisk(data, trackerCount) {
     if (data.location) score += 15;
     if (data.creditCard) score += 20;
     if (data.ssn) score += 25;
+    if (data.biometric) score += 30;
     score += trackerCount * 10;
 
     let level = "Low";
