@@ -43,11 +43,7 @@ function scanDataCollection(html) {
         biometric:
             lowerHtml.includes("fingerprint") ||
             lowerHtml.includes("face id") ||
-            lowerHtml.includes("biometric"),
-
-        ipAddress:
-            lowerHtml.includes("ip address") ||
-            lowerHtml.includes("your ip")
+            lowerHtml.includes("biometric")
     };
 }
 
