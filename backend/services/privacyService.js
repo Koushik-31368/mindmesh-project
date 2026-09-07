@@ -12,6 +12,12 @@ const { createAiService } = require("./providerFactory");
 
 const aiService = createAiService();
 
+/**
+ * Thresholds used to classify the computed privacy risk score.
+ * Scores are additive: each detected data field or tracker raises the score.
+ */
+const RISK_THRESHOLDS = { MEDIUM: 20, HIGH: 50, CRITICAL: 80 };
+
 function calculateRisk(data, trackerCount) {
     let score = 0;
 
@@ -26,9 +32,9 @@ function calculateRisk(data, trackerCount) {
 
     let level = "Low";
 
-    if (score > 20) level = "Medium";
-    if (score > 50) level = "High";
-    if (score > 80) level = "Critical";
+    if (score > RISK_THRESHOLDS.MEDIUM) level = "Medium";
+    if (score > RISK_THRESHOLDS.HIGH) level = "High";
+    if (score > RISK_THRESHOLDS.CRITICAL) level = "Critical";
 
     return {
         score,
