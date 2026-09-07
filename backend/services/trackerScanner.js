@@ -4,6 +4,7 @@
  * @returns {{ count: number, trackers: string[] }} Detected tracker names.
  */
 function scanTrackers(html) {
+    /** @type {string[]} Detected tracker names found in the HTML */
     const trackers = [];
 
     const trackerPatterns = [
