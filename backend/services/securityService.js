@@ -25,6 +25,16 @@ function getRiskLevel(score) {
     return "dangerous";
 }
 
+/**
+ * Orchestrates heuristic scanning and optional AI verification for a page.
+ * AI verification is only triggered when the heuristic score is below 70
+ * and the page is not on a trusted domain list.
+ * @param {object} params
+ * @param {string} params.url      - The URL of the page to analyze.
+ * @param {string} params.pageText - Visible text content of the page.
+ * @param {string} params.html     - Raw HTML of the page.
+ * @returns {Promise<object>} Safety result with riskScore, riskLevel, reasons, and aiVerification.
+ */
 async function analyzePageSafety({ url, pageText, html }) {
     const scanResult = scanPage({ url, pageText, html });
 
