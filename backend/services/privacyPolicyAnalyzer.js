@@ -46,12 +46,7 @@ function analyzePolicy(policyText) {
         sellsData:
             text.includes("sell your data") ||
             text.includes("sell personal information") ||
-            text.includes("do not sell"),
-
-        rightToDelete:
-            text.includes("right to delete") ||
-            text.includes("right to erasure") ||
-            text.includes("delete your data")
+            text.includes("do not sell")
     };
 }
 
