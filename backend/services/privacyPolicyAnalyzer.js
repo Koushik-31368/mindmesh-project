@@ -4,6 +4,11 @@
  * categories of personal data a site collects, whether it shares data
  * with third parties, and whether data retention is mentioned.
  */
+/**
+ * Analyzes privacy policy text for data collection, sharing, and compliance signals.
+ * @param {string} policyText - The full text of a privacy/cookie policy page.
+ * @returns {object} Detected signals as boolean flags.
+ */
 function analyzePolicy(policyText) {
     const text = policyText.toLowerCase();
 
