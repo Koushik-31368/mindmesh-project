@@ -54,6 +54,18 @@ function scanTrackers(html) {
         {
             name: "Microsoft Clarity",
             pattern: /clarity\.ms/i
+        },
+        {
+            name: "Amazon Ads",
+            pattern: /amazon-adsystem\.com|amzn\.to/i
+        },
+        {
+            name: "Criteo",
+            pattern: /criteo\.com|criteo\.net/i
+        },
+        {
+            name: "Intercom",
+            pattern: /intercom\.io|widget\.intercom\.io/i
         }
     ];
 
