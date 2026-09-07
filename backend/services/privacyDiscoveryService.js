@@ -9,7 +9,12 @@ function findPrivacyLinks(html) {
         "privacy",
         "privacy policy",
         "privacy notice",
-        "data policy"
+        "data policy",
+        "cookie policy",
+        "cookie notice",
+        "gdpr",
+        "terms of service",
+        "legal notice"
     ];
 
     const matches = [];
