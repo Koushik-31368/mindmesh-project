@@ -4,6 +4,11 @@
  * Uses regex-based anchor tag extraction and pattern matching to identify
  * relevant links (e.g., "privacy policy", "data policy").
  */
+/**
+ * Scan raw page HTML for links pointing to privacy or legal pages.
+ * @param {string} html - Raw HTML of the page to scan.
+ * @returns {Array<{href: string, text: string}>} Matched anchor hrefs and link text.
+ */
 function findPrivacyLinks(html) {
     const patterns = [
         "privacy",
