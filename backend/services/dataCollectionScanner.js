@@ -4,6 +4,17 @@
  * @param {string} html - Raw HTML content of the page.
  * @returns {object} Boolean flags for each data category.
  */
+/**
+ * Scans raw page HTML for personal data collection form fields and keywords.
+ * Detection is keyword-based on lowercased HTML; intended as a fast heuristic.
+ * @param {string} html - Raw HTML content of the page.
+ * @returns {{
+ *   email: boolean, phone: boolean, password: boolean,
+ *   address: boolean, dob: boolean, location: boolean,
+ *   creditCard: boolean, ssn: boolean,
+ *   biometric: boolean, ipAddress: boolean
+ * }}
+ */
 function scanDataCollection(html) {
     const lowerHtml = html.toLowerCase();
 
