@@ -12,13 +12,6 @@ const { createAiService } = require("./providerFactory");
 
 const aiService = createAiService();
 
-/** Risk score thresholds for privacy risk level classification. */
-const RISK_THRESHOLDS = {
-    MEDIUM: 20,
-    HIGH: 50,
-    CRITICAL: 80
-};
-
 function calculateRisk(data, trackerCount) {
     let score = 0;
 
@@ -33,9 +26,9 @@ function calculateRisk(data, trackerCount) {
 
     let level = "Low";
 
-    if (score > RISK_THRESHOLDS.MEDIUM) level = "Medium";
-    if (score > RISK_THRESHOLDS.HIGH) level = "High";
-    if (score > RISK_THRESHOLDS.CRITICAL) level = "Critical";
+    if (score > 20) level = "Medium";
+    if (score > 50) level = "High";
+    if (score > 80) level = "Critical";
 
     return {
         score,
