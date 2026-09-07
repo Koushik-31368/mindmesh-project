@@ -34,7 +34,22 @@ function analyzePolicy(policyText) {
         retentionMentioned:
             text.includes("retention") ||
             text.includes("retain") ||
-            text.includes("storage period")
+            text.includes("storage period"),
+
+        sellsData:
+            text.includes("sell your data") ||
+            text.includes("sell personal information") ||
+            text.includes("do not sell"),
+
+        rightToDelete:
+            text.includes("right to delete") ||
+            text.includes("right to erasure") ||
+            text.includes("delete your account"),
+
+        ccpaOptOut:
+            text.includes("opt out") ||
+            text.includes("opt-out") ||
+            text.includes("california privacy rights")
     };
 }
 
