@@ -11,6 +11,14 @@ const { verifySecurity } = require("./aiSecurityVerifier");
  *   Score 40-69  → suspicious (warning)
  *   Score < 40   → dangerous
  */
+/**
+ * Converts a numeric heuristic score (0–100) to a risk level label.
+ * - score >= 70  → "safe"
+ * - score 40–69  → "suspicious"
+ * - score < 40   → "dangerous"
+ * @param {number} score
+ * @returns {"safe"|"suspicious"|"dangerous"}
+ */
 function getRiskLevel(score) {
     if (score >= 70) return "safe";
     if (score >= 40) return "suspicious";
