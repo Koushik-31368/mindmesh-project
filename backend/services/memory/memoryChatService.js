@@ -36,11 +36,6 @@ function getClient() {
     return client;
 }
 
-/**
- * Formats retrieved chunks into a numbered context block for the LLM prompt.
- * @param {Array<{chunkText: string}>} chunks
- * @returns {string}
- */
 function buildContext(chunks) {
     return chunks
         .map((chunk, index) => {
