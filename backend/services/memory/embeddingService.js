@@ -6,6 +6,10 @@ const EMBEDDING_MODEL = "gemini-embedding-001";
 
 let client;
 
+/**
+ * Returns a lazily-initialized GoogleGenAI client using env API key.
+ * @returns {import("@google/genai").GoogleGenAI}
+ */
 function getClient() {
     if (!client) {
         const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
