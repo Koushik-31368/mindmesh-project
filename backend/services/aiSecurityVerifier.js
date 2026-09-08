@@ -8,6 +8,11 @@ const { createAiService } = require("./providerFactory");
 
 const aiService = createAiService();
 
+/**
+ * Uses the active AI provider to verify heuristic security flags.
+ * @param {{url: string, score: number, reasons: string[], pageSnippet: string}} params
+ * @returns {Promise<object>} AI security verdict.
+ */
 async function verifySecurity(evidence) {
     try {
         const raw = await aiService.securityVerify(evidence);
