@@ -5,9 +5,6 @@ const { createAiService } = require("../providerFactory");
 const graphService = createGraphService();
 const aiService = createAiService();
 
-/** Top-K memory chunks used alongside graph context in hybrid answers. */
-const GRAPH_MEMORY_TOP_K = 5;
-
 /**
  * Hybrid Q&A combining graph traversal with semantic RAG retrieval.
  * @param {string} question
@@ -18,7 +15,7 @@ async function answerHybrid(question) {
     const graphContext = await graphService.queryGraph(question);
 
     // 2. Query semantic memory (retrieves relevant text chunks)
-    const memoryContext = await searchSimilarChunks(question, GRAPH_MEMORY_TOP_K);
+    const memoryContext = await searchSimilarChunks(question, 5);
 
     // 3. Synthesize the final answer using the active AI provider
     const answer = await aiService.answerQuestion(
