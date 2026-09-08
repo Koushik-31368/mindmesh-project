@@ -1,3 +1,10 @@
+/**
+ * Splits text into overlapping word-level chunks for embedding.
+ * @param {string} text - Input text.
+ * @param {number} chunkSize - Max words per chunk (default 400).
+ * @param {number} overlap - Word overlap (default 50).
+ * @returns {string[]}
+ */
 function chunkText(text, chunkSize = 400, overlap = 50) {
 
     const words = text.split(/\s+/).filter(Boolean);
