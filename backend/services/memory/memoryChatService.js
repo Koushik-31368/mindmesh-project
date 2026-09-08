@@ -9,8 +9,16 @@ const MEMORY_CHAT_MODELS = (process.env.GEMINI_MEMORY_CHAT_MODEL || "gemini-2.5-
     .filter(Boolean);
 const NO_MEMORY_ANSWER = "I could not find relevant information in saved memory.";
 
+/** Number of top-K semantic chunks retrieved per query. */
+const MEMORY_TOP_K = 5;
+
 let client;
 
+/**
+ * Normalises any value to a trimmed, clean string.
+ * @param {string|any} text
+ * @returns {string}
+ */
 function cleanText(text) {
     return String(text || "").replace(/\s+/g, " ").trim();
 }
@@ -31,6 +39,11 @@ function getClient() {
     return client;
 }
 
+/**
+ * Builds a numbered context block from memory chunks for LLM prompting.
+ * @param {Array<{chunkText: string}>} chunks
+ * @returns {string}
+ */
 function buildContext(chunks) {
     return chunks
         .map((chunk, index) => {
@@ -46,7 +59,7 @@ async function answerFromMemory(question) {
         return NO_MEMORY_ANSWER;
     }
 
-    const chunks = await searchSimilarChunks(cleanedQuestion, 5);
+    const chunks = await searchSimilarChunks(cleanedQuestion, MEMORY_TOP_K);
 
     if (chunks.length === 0) {
         return NO_MEMORY_ANSWER;
