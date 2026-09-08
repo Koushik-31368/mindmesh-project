@@ -4,6 +4,9 @@ const { GoogleGenAI } = require("@google/genai");
 
 const EMBEDDING_MODEL = "gemini-embedding-001";
 
+/** Maximum retry attempts on 429 / RESOURCE_EXHAUSTED rate-limit errors. */
+const MAX_RETRIES = 6;
+
 let client;
 
 /**
@@ -33,7 +36,7 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
  * Retries up to MAX_RETRIES times, doubling the wait each attempt.
  */
 async function generateEmbedding(text, retries = 0) {
-    const MAX_RETRIES = 6;
+    const _maxRetries = MAX_RETRIES;
     const BASE_DELAY_MS = Number(process.env.EMBED_DELAY_MS ?? 5000);
 
     const client = getClient();
@@ -52,7 +55,7 @@ async function generateEmbedding(text, retries = 0) {
             err?.message?.includes("RESOURCE_EXHAUSTED") ||
             JSON.stringify(err).includes("RESOURCE_EXHAUSTED");
 
-        if (is429 && retries < MAX_RETRIES) {
+        if (is429 && retries < _maxRetries) {
             const delay = BASE_DELAY_MS * Math.pow(2, retries); // 5s, 10s, 20s, 40s...
             process.stderr.write(
                 `\n    [embed] 429 rate-limit — waiting ${(delay / 1000).toFixed(0)}s before retry ${retries + 1}/${MAX_RETRIES}… `
