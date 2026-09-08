@@ -9,9 +9,6 @@ const MEMORY_CHAT_MODELS = (process.env.GEMINI_MEMORY_CHAT_MODEL || "gemini-2.5-
     .filter(Boolean);
 const NO_MEMORY_ANSWER = "I could not find relevant information in saved memory.";
 
-/** Top-K chunks retrieved per query for memory-grounded answering. */
-const MEMORY_TOP_K = 5;
-
 let client;
 
 /**
@@ -59,7 +56,7 @@ async function answerFromMemory(question) {
         return NO_MEMORY_ANSWER;
     }
 
-    const chunks = await searchSimilarChunks(cleanedQuestion, MEMORY_TOP_K);
+    const chunks = await searchSimilarChunks(cleanedQuestion, 5);
 
     if (chunks.length === 0) {
         return NO_MEMORY_ANSWER;
