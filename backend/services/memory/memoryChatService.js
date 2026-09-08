@@ -11,6 +11,11 @@ const NO_MEMORY_ANSWER = "I could not find relevant information in saved memory.
 
 let client;
 
+/**
+ * Normalises any value to a clean trimmed string.
+ * @param {string|any} text
+ * @returns {string}
+ */
 function cleanText(text) {
     return String(text || "").replace(/\s+/g, " ").trim();
 }
