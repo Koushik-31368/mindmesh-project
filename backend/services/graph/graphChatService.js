@@ -5,11 +5,6 @@ const { createAiService } = require("../providerFactory");
 const graphService = createGraphService();
 const aiService = createAiService();
 
-/**
- * Hybrid Q&A combining graph traversal with semantic RAG retrieval.
- * @param {string} question
- * @returns {Promise<{answer: string, graphContext: object, memoryContext: object[]}>}
- */
 async function answerHybrid(question) {
     // 1. Query the knowledge graph (performs multi-hop BFS traversal)
     const graphContext = await graphService.queryGraph(question);
