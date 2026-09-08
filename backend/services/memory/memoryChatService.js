@@ -52,6 +52,12 @@ function buildContext(chunks) {
         .join("\n");
 }
 
+/**
+ * Retrieves relevant memory chunks and answers a question using Gemini,
+ * grounded strictly in saved memory (no outside knowledge).
+ * @param {string} question
+ * @returns {Promise<string>} Answer or NO_MEMORY_ANSWER fallback.
+ */
 async function answerFromMemory(question) {
     const cleanedQuestion = cleanText(question);
 
