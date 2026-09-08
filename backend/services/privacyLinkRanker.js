@@ -3,6 +3,11 @@
  * Sorts discovered privacy-related links by relevance. Links matching
  * "privacy policy" rank highest, followed by "privacy notice", etc.
  */
+/**
+ * Ranks privacy links by relevance, preferring exact policy page matches.
+ * @param {Array<{href: string, text: string}>} links
+ * @returns {Array<{href: string, text: string}>}
+ */
 function rankPrivacyLinks(links) {
     const priorities = [
         "privacy policy",
