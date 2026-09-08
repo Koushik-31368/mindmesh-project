@@ -1,9 +1,3 @@
-/** Default words per chunk (tuned for Gemini embedding context). */
-const DEFAULT_CHUNK_SIZE = 400;
-
-/** Overlap words between chunks to preserve boundary context. */
-const DEFAULT_OVERLAP = 50;
-
 /**
  * Splits text into overlapping word-level chunks for embedding.
  * @param {string} text - Input text.
@@ -11,7 +5,7 @@ const DEFAULT_OVERLAP = 50;
  * @param {number} overlap - Overlap word count.
  * @returns {string[]}
  */
-function chunkText(text, chunkSize = DEFAULT_CHUNK_SIZE, overlap = DEFAULT_OVERLAP) {
+function chunkText(text, chunkSize = 400, overlap = 50) {
 
     const words = text.split(/\s+/).filter(Boolean);
 
