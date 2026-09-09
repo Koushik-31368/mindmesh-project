@@ -87,6 +87,12 @@ async function deleteChunksByPageId(pageId) {
     }
 }
 
+/**
+ * Upserts text chunks for a page into ChromaDB, replacing existing ones.
+ * @param {string|number} pageId
+ * @param {string[]} chunks
+ * @returns {Promise<{pageId: string|number, chunkCount: number}>}
+ */
 async function addChunks(pageId, chunks) {
     if (!pageId) {
         throw new Error("pageId is required to add chunks to ChromaDB.");
@@ -126,6 +132,12 @@ async function addChunks(pageId, chunks) {
     };
 }
 
+/**
+ * Queries ChromaDB for the most semantically similar chunks to a query.
+ * @param {string} query  - Natural language query string.
+ * @param {number} limit  - Max results to return (default 5).
+ * @returns {Promise<Array<object>>}
+ */
 async function searchSimilarChunks(query, limit = 5) {
     const cleanedQuery = cleanText(query);
 
