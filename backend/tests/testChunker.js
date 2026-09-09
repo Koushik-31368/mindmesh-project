@@ -1,3 +1,6 @@
+// Test suite: chunkerService
+// Verifies chunkText splits text into overlapping word-level chunks.
+
 const assert = require('assert');
 const { chunkText } = require('../services/memory/chunkerService');
 
