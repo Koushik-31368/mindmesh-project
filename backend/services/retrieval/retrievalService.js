@@ -1,3 +1,8 @@
+/**
+ * Retrieval Service
+ * Thin abstraction over ChromaDB for chunk storage and semantic search.
+ * All configuration driven by CHROMA_* environment variables.
+ */
 const DEFAULT_COLLECTION_NAME = process.env.CHROMA_COLLECTION || "mindmesh_chunks";
 const DEFAULT_HOST = process.env.CHROMA_HOST || "localhost";
 const DEFAULT_PORT = Number(process.env.CHROMA_PORT || 8000);
@@ -8,10 +13,21 @@ const DEFAULT_DATABASE = process.env.CHROMA_DATABASE || undefined;
 let chromaClientPromise;
 let collectionPromise;
 
+/**
+ * Normalises whitespace for consistent ChromaDB storage and querying.
+ * @param {string|any} text
+ * @returns {string}
+ */
 function cleanText(text) {
     return String(text || "").replace(/\s+/g, " ").trim();
 }
 
+/**
+ * Builds a deterministic document ID for a page chunk.
+ * @param {string|number} pageId
+ * @param {number} chunkIndex
+ * @returns {string}
+ */
 function buildChunkId(pageId, chunkIndex) {
     return `page-${pageId}-chunk-${chunkIndex}`;
 }
