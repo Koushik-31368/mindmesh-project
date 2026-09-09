@@ -43,6 +43,7 @@ function createAiService() {
         }
     }
 
+    /** Unified AI service with Groq-primary and Gemini-fallback routing. */
     return {
         summarize(text) {
             return withFallback((service, pageText) => service.summarize(pageText), text);
