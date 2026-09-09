@@ -1,3 +1,6 @@
+// Test suite: retrievalService semantic search
+// Saves sample pages and verifies similar chunk retrieval.
+
 require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
 
 const {
