@@ -48,6 +48,10 @@ async function loadChromaClient() {
     return chromaClientPromise;
 }
 
+/**
+ * Returns the singleton ChromaDB collection, creating it if absent.
+ * @returns {Promise<object>}
+ */
 async function getCollection() {
     if (!collectionPromise) {
         collectionPromise = loadChromaClient().then((client) => {
