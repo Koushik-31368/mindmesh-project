@@ -17,12 +17,6 @@ function cleanText(text) {
     return String(text || "").replace(/\s+/g, " ").trim();
 }
 
-/**
- * Builds a deterministic ChromaDB document ID from page ID and chunk index.
- * @param {string|number} pageId
- * @param {number} chunkIndex
- * @returns {string}
- */
 function buildChunkId(pageId, chunkIndex) {
     return `page-${pageId}-chunk-${chunkIndex}`;
 }
