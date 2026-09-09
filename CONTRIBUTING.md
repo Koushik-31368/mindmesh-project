@@ -70,3 +70,10 @@ Open a GitHub issue with:
 - Steps to reproduce
 - Expected vs. actual behavior
 - Browser and OS version
+
+## Running Tests
+
+Run the diagnostic test suite from the backend directory:
+
+    cd backend
+    npm test
