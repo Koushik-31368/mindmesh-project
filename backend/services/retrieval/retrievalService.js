@@ -127,12 +127,6 @@ async function addChunks(pageId, chunks) {
     };
 }
 
-/**
- * Queries ChromaDB for chunks most semantically similar to the query.
- * @param {string} query  - Natural language query.
- * @param {number} limit  - Max results (default 5).
- * @returns {Promise<Array<object>>}
- */
 async function searchSimilarChunks(query, limit = 5) {
     const cleanedQuery = cleanText(query);
 
