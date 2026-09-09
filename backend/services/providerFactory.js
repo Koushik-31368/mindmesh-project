@@ -12,6 +12,12 @@ function createAiService() {
     const geminiService = createGeminiService();
 
     // Groq is the primary provider and Gemini is the automatic fallback.
+    /**
+     * Runs an AI action with Groq as primary, Gemini as automatic fallback.
+     * Only falls back when error.fallbackEligible === true.
+     * @param {Function} action
+     * @returns {Promise<any>}
+     */
     async function withFallback(action, ...args) {
         try {
             return await action(groqService, ...args);
