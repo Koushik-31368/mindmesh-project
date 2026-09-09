@@ -82,6 +82,12 @@ async function deleteChunksByPageId(pageId) {
     }
 }
 
+/**
+ * Upserts text chunks for a page into ChromaDB, replacing existing ones.
+ * @param {string|number} pageId
+ * @param {string[]} chunks
+ * @returns {Promise<{pageId: string|number, chunkCount: number}>}
+ */
 async function addChunks(pageId, chunks) {
     if (!pageId) {
         throw new Error("pageId is required to add chunks to ChromaDB.");
