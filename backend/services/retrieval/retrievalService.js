@@ -8,6 +8,11 @@ const DEFAULT_DATABASE = process.env.CHROMA_DATABASE || undefined;
 let chromaClientPromise;
 let collectionPromise;
 
+/**
+ * Normalises whitespace for consistent ChromaDB storage and querying.
+ * @param {string|any} text
+ * @returns {string}
+ */
 function cleanText(text) {
     return String(text || "").replace(/\s+/g, " ").trim();
 }
