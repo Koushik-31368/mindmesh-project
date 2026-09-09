@@ -1,3 +1,6 @@
+// Test suite: embeddingService
+// Smoke-tests the Gemini embedding API with a sample text.
+
 require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
 
 const {
