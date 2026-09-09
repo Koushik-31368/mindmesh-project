@@ -27,6 +27,11 @@ function buildChunkId(pageId, chunkIndex) {
     return `page-${pageId}-chunk-${chunkIndex}`;
 }
 
+/**
+ * Lazily initialises a singleton ChromaDB client from environment config.
+ * Uses dynamic import to avoid loading chromadb at startup if unused.
+ * @returns {Promise<object>}
+ */
 async function loadChromaClient() {
     if (!chromaClientPromise) {
         chromaClientPromise = import("chromadb").then(({ ChromaClient }) => {
