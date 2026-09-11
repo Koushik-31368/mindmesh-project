@@ -42,7 +42,8 @@ function embeddingToBuffer(embedding) {
     return Buffer.from(Float32Array.from(embedding).buffer);
 }
 
-/** Reconstructs float32 array from SQLite BLOB. Returns [] if null. */
+/** Reconstructs float32 array from SQLite BLOB. Returns [] if null. */
+
 function deserializeEmbedding(blob) {
     if (!blob) {
         return [];
@@ -52,6 +53,7 @@ function deserializeEmbedding(blob) {
     return Array.from(new Float32Array(arrayBuffer));
 }
 
+/** Cosine similarity score in [0,1] between two embedding vectors. */
 function cosineSimilarity(vectorA, vectorB) {
     if (!Array.isArray(vectorA) || !Array.isArray(vectorB)) {
         return 0;
