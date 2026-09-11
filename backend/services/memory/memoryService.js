@@ -36,11 +36,13 @@ function all(query, params = []) {
     });
 }
 
-/** Converts float32 embedding to SQLite BLOB Buffer. */
+/** Converts float32 embedding to SQLite BLOB Buffer. */
+
 function embeddingToBuffer(embedding) {
     return Buffer.from(Float32Array.from(embedding).buffer);
 }
 
+/** Reconstructs float32 array from SQLite BLOB. Returns [] if null. */
 function deserializeEmbedding(blob) {
     if (!blob) {
         return [];
