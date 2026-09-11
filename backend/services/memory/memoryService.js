@@ -292,7 +292,8 @@ function getAllPages() {
     });
 }
 
-/** Returns a page record by primary key. */
+/** Returns a page record by primary key. */
+
 function getPageById(pageId) {
     return new Promise((resolve, reject) => {
         db.get(
