@@ -87,11 +87,16 @@ function deserializeEmbedding(blob) {
 
 /** Cosine similarity score in [0,1] between two embedding vectors. */
 
-/**
- * Computes cosine similarity between two float embedding vectors.
- * Returns 0 for empty or zero-norm vectors.
- * @param {number[]} vectorA @param {number[]} vectorB @returns {number}
- */
+/**
+
+ * Computes cosine similarity between two float embedding vectors.
+
+ * Returns 0 for empty or zero-norm vectors.
+
+ * @param {number[]} vectorA @param {number[]} vectorB @returns {number}
+
+ */
+
 function cosineSimilarity(vectorA, vectorB) {
     if (!Array.isArray(vectorA) || !Array.isArray(vectorB)) {
         return 0;
@@ -205,6 +210,12 @@ async function searchSimilarChunks(query, limit = 5) {
 
 /** Saves/updates page in SQLite, embeds chunks, triggers graph extraction. */
 
+/**
+ * Saves or updates a page, chunks and embeds its content,
+ * and triggers automatic knowledge graph extraction.
+ * @param {{url:string, title:string, content:string}} page
+ * @returns {Promise<{success:boolean, pageId:number, chunkCount:number}>}
+ */
 async function savePage({ url, title, content }) {
     const safeContent = content || "";
     const chunks = chunkText(safeContent);
