@@ -1,3 +1,5 @@
+// Test suite: cosineSimilarity - checks scores between known vectors.
+
 const assert = require('assert');
 const { cosineSimilarity } = require('../services/memory/memoryService');
 

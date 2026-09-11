@@ -1,3 +1,5 @@
+// Test suite: memoryChatService - queries memory with sample question.
+
 require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
 
 const { savePage } = require("../services/memory/memoryService");
