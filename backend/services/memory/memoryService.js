@@ -210,12 +210,18 @@ async function searchSimilarChunks(query, limit = 5) {
 
 /** Saves/updates page in SQLite, embeds chunks, triggers graph extraction. */
 
-/**
- * Saves or updates a page, chunks and embeds its content,
- * and triggers automatic knowledge graph extraction.
- * @param {{url:string, title:string, content:string}} page
- * @returns {Promise<{success:boolean, pageId:number, chunkCount:number}>}
- */
+/**
+
+ * Saves or updates a page, chunks and embeds its content,
+
+ * and triggers automatic knowledge graph extraction.
+
+ * @param {{url:string, title:string, content:string}} page
+
+ * @returns {Promise<{success:boolean, pageId:number, chunkCount:number}>}
+
+ */
+
 async function savePage({ url, title, content }) {
     const safeContent = content || "";
     const chunks = chunkText(safeContent);
@@ -299,6 +305,10 @@ async function savePage({ url, title, content }) {
     };
 }
 
+/**
+ * Returns all text chunks for a page ordered by chunk index.
+ * @param {number} pageId @returns {Promise<object[]>}
+ */
 function getChunksByPageId(pageId) {
     return new Promise((resolve, reject) => {
         db.all(
@@ -320,6 +330,10 @@ function getChunksByPageId(pageId) {
     });
 }
 
+/**
+ * Returns all saved pages ordered by most recently saved first.
+ * @returns {Promise<object[]>}
+ */
 function getAllPages() {
     return new Promise((resolve, reject) => {
 
@@ -342,6 +356,10 @@ function getAllPages() {
 
 /** Returns a page record by primary key. */
 
+/**
+ * Fetches a single page by primary key.
+ * @param {number} pageId @returns {Promise<object|undefined>}
+ */
 function getPageById(pageId) {
     return new Promise((resolve, reject) => {
         db.get(
