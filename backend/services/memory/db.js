@@ -1,3 +1,4 @@
+/** Database Module - Initialises SQLite and all tables on startup. */
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
