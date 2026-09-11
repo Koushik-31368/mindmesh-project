@@ -54,20 +54,28 @@ function all(query, params = []) {
 
 /** Converts float32 embedding to SQLite BLOB Buffer. */
 
-/**
- * Serialises a float32 embedding vector to a SQLite BLOB Buffer.
- * @param {number[]} embedding @returns {Buffer}
- */
+/**
+
+ * Serialises a float32 embedding vector to a SQLite BLOB Buffer.
+
+ * @param {number[]} embedding @returns {Buffer}
+
+ */
+
 function embeddingToBuffer(embedding) {
     return Buffer.from(Float32Array.from(embedding).buffer);
 }
 
 /** Reconstructs float32 array from SQLite BLOB. Returns [] if null. */
 
-/**
- * Deserialises a SQLite BLOB back into a float32 number array.
- * @param {Buffer|null} blob @returns {number[]}
- */
+/**
+
+ * Deserialises a SQLite BLOB back into a float32 number array.
+
+ * @param {Buffer|null} blob @returns {number[]}
+
+ */
+
 function deserializeEmbedding(blob) {
     if (!blob) {
         return [];
@@ -79,6 +87,11 @@ function deserializeEmbedding(blob) {
 
 /** Cosine similarity score in [0,1] between two embedding vectors. */
 
+/**
+ * Computes cosine similarity between two float embedding vectors.
+ * Returns 0 for empty or zero-norm vectors.
+ * @param {number[]} vectorA @param {number[]} vectorB @returns {number}
+ */
 function cosineSimilarity(vectorA, vectorB) {
     if (!Array.isArray(vectorA) || !Array.isArray(vectorB)) {
         return 0;
