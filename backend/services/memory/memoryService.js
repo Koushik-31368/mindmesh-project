@@ -10,6 +10,10 @@ const CHROMA_INDEXING_ENABLED = String(process.env.CHROMA_INDEXING_ENABLED || "f
 
 /** Promisified db.run for INSERT/UPDATE/DELETE. */
 
+/**
+ * Promisified db.run for INSERT, UPDATE and DELETE statements.
+ * @param {string} query @param {any[]} params @returns {Promise<object>}
+ */
 function run(query, params = []) {
     return new Promise((resolve, reject) => {
         db.run(query, params, function (err) {
@@ -24,6 +28,10 @@ function run(query, params = []) {
 
 /** Promisified db.all for SELECT multiple rows. */
 
+/**
+ * Promisified db.all returning all matched rows.
+ * @param {string} query @param {any[]} params @returns {Promise<object[]>}
+ */
 function all(query, params = []) {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
