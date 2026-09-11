@@ -85,7 +85,8 @@ db.serialize(() => {
     `);
 });
 
-/** Runs callback atomically in BEGIN/COMMIT; rolls back on error. */
+/** Runs callback atomically in BEGIN/COMMIT; rolls back on error. */
+
 db.runTransaction = async function(callback) {
     return new Promise((resolve, reject) => {
         db.run("BEGIN TRANSACTION", async function(err) {
