@@ -8,6 +8,7 @@ const { addChunks } = require("../retrieval/retrievalService");
 
 const CHROMA_INDEXING_ENABLED = String(process.env.CHROMA_INDEXING_ENABLED || "false").toLowerCase() === "true";
 
+/** Promisified db.run for INSERT/UPDATE/DELETE. */
 function run(query, params = []) {
     return new Promise((resolve, reject) => {
         db.run(query, params, function (err) {
