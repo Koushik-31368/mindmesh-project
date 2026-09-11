@@ -1,4 +1,5 @@
-/** Database Module - Initialises SQLite and all tables on startup. */
+/** Database Module - Initialises SQLite and all tables on startup. */
+
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
@@ -84,6 +85,7 @@ db.serialize(() => {
     `);
 });
 
+/** Runs callback atomically in BEGIN/COMMIT; rolls back on error. */
 db.runTransaction = async function(callback) {
     return new Promise((resolve, reject) => {
         db.run("BEGIN TRANSACTION", async function(err) {
