@@ -22,7 +22,8 @@ function run(query, params = []) {
     });
 }
 
-/** Promisified db.all for SELECT multiple rows. */
+/** Promisified db.all for SELECT multiple rows. */
+
 function all(query, params = []) {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
@@ -35,6 +36,7 @@ function all(query, params = []) {
     });
 }
 
+/** Converts float32 embedding to SQLite BLOB Buffer. */
 function embeddingToBuffer(embedding) {
     return Buffer.from(Float32Array.from(embedding).buffer);
 }
