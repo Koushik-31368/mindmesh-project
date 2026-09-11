@@ -53,7 +53,8 @@ function deserializeEmbedding(blob) {
     return Array.from(new Float32Array(arrayBuffer));
 }
 
-/** Cosine similarity score in [0,1] between two embedding vectors. */
+/** Cosine similarity score in [0,1] between two embedding vectors. */
+
 function cosineSimilarity(vectorA, vectorB) {
     if (!Array.isArray(vectorA) || !Array.isArray(vectorB)) {
         return 0;
@@ -165,6 +166,7 @@ async function searchSimilarChunks(query, limit = 5) {
         .slice(0, limit);
 }
 
+/** Saves/updates page in SQLite, embeds chunks, triggers graph extraction. */
 async function savePage({ url, title, content }) {
     const safeContent = content || "";
     const chunks = chunkText(safeContent);
