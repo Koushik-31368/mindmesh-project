@@ -166,7 +166,8 @@ async function searchSimilarChunks(query, limit = 5) {
         .slice(0, limit);
 }
 
-/** Saves/updates page in SQLite, embeds chunks, triggers graph extraction. */
+/** Saves/updates page in SQLite, embeds chunks, triggers graph extraction. */
+
 async function savePage({ url, title, content }) {
     const safeContent = content || "";
     const chunks = chunkText(safeContent);
@@ -291,6 +292,7 @@ function getAllPages() {
     });
 }
 
+/** Returns a page record by primary key. */
 function getPageById(pageId) {
     return new Promise((resolve, reject) => {
         db.get(
