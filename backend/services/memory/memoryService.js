@@ -10,10 +10,14 @@ const CHROMA_INDEXING_ENABLED = String(process.env.CHROMA_INDEXING_ENABLED || "f
 
 /** Promisified db.run for INSERT/UPDATE/DELETE. */
 
-/**
- * Promisified db.run for INSERT, UPDATE and DELETE statements.
- * @param {string} query @param {any[]} params @returns {Promise<object>}
- */
+/**
+
+ * Promisified db.run for INSERT, UPDATE and DELETE statements.
+
+ * @param {string} query @param {any[]} params @returns {Promise<object>}
+
+ */
+
 function run(query, params = []) {
     return new Promise((resolve, reject) => {
         db.run(query, params, function (err) {
@@ -28,10 +32,14 @@ function run(query, params = []) {
 
 /** Promisified db.all for SELECT multiple rows. */
 
-/**
- * Promisified db.all returning all matched rows.
- * @param {string} query @param {any[]} params @returns {Promise<object[]>}
- */
+/**
+
+ * Promisified db.all returning all matched rows.
+
+ * @param {string} query @param {any[]} params @returns {Promise<object[]>}
+
+ */
+
 function all(query, params = []) {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
@@ -46,12 +54,20 @@ function all(query, params = []) {
 
 /** Converts float32 embedding to SQLite BLOB Buffer. */
 
+/**
+ * Serialises a float32 embedding vector to a SQLite BLOB Buffer.
+ * @param {number[]} embedding @returns {Buffer}
+ */
 function embeddingToBuffer(embedding) {
     return Buffer.from(Float32Array.from(embedding).buffer);
 }
 
 /** Reconstructs float32 array from SQLite BLOB. Returns [] if null. */
 
+/**
+ * Deserialises a SQLite BLOB back into a float32 number array.
+ * @param {Buffer|null} blob @returns {number[]}
+ */
 function deserializeEmbedding(blob) {
     if (!blob) {
         return [];
