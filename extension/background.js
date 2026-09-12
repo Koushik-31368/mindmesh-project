@@ -1,6 +1,9 @@
-// Background Script - MindMesh Extension
-// Manages lifecycle, tab events and message routing to backend API.
-
+// Background Script - MindMesh Extension
+
+// Manages lifecycle, tab events and message routing to backend API.
+
+
+
 /**
  * MindMesh Background Service Worker (Manifest V3)
  * Handles toolbar icon clicks, programmatic content script injection,
