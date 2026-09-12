@@ -64,12 +64,18 @@ const TRUSTED_DOMAINS = new Set([
  * Check if a hostname belongs to a trusted domain.
  * Handles subdomains (e.g., en.wikipedia.org matches wikipedia.org).
  */
-/**
- * Returns true if hostname is in the TRUSTED_DOMAINS allow-list.
- * Handles subdomains correctly to block lookalikes.
- * @param {string} hostname
- * @returns {boolean}
- */
+/**
+
+ * Returns true if hostname is in the TRUSTED_DOMAINS allow-list.
+
+ * Handles subdomains correctly to block lookalikes.
+
+ * @param {string} hostname
+
+ * @returns {boolean}
+
+ */
+
 function isTrustedDomain(hostname) {
     const lower = hostname.toLowerCase();
 
@@ -164,6 +170,13 @@ function analyzeUrl(url) {
  * Keyword analysis with context awareness.
  * Only flags keywords when they appear alongside credential harvesting indicators.
  */
+/**
+ * Flags phishing phrases and credential-harvesting patterns.
+ * Context-aware: generic urgency words only penalised near password fields.
+ * @param {string} text
+ * @param {boolean} hasPasswordFields
+ * @returns {{penalty: number, reasons: string[]}}
+ */
 function analyzeKeywords(text, hasPasswordFields) {
     let penalty = 0;
     const reasons = [];
