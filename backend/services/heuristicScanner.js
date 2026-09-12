@@ -64,6 +64,12 @@ const TRUSTED_DOMAINS = new Set([
  * Check if a hostname belongs to a trusted domain.
  * Handles subdomains (e.g., en.wikipedia.org matches wikipedia.org).
  */
+/**
+ * Returns true if hostname is in the TRUSTED_DOMAINS allow-list.
+ * Handles subdomains correctly to block lookalikes.
+ * @param {string} hostname
+ * @returns {boolean}
+ */
 function isTrustedDomain(hostname) {
     const lower = hostname.toLowerCase();
 
@@ -85,11 +91,16 @@ function isTrustedDomain(hostname) {
     return false;
 }
 
-/**
- * Analyses a URL for phishing signals.
- * @param {string} url
- * @returns {{penalty: number, reasons: string[], trusted: boolean}}
- */
+/**
+
+ * Analyses a URL for phishing signals.
+
+ * @param {string} url
+
+ * @returns {{penalty: number, reasons: string[], trusted: boolean}}
+
+ */
+
 function analyzeUrl(url) {
     let penalty = 0;
     const reasons = [];
