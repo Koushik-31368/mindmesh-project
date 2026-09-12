@@ -1,3 +1,8 @@
+/**
+ * Heuristic Scanner
+ * Rule-based URL, keyword and DOM analysis to flag suspicious pages.
+ * Returns a 0-100 risk score: higher means more suspicious.
+ */
 // Trusted domains that should bypass heuristic scanning entirely.
 // These are well-known, established domains that are structurally safe.
 const TRUSTED_DOMAINS = new Set([
