@@ -208,14 +208,22 @@ function analyzeUrl(url) {
 
  */
 
-/**
- * Context-aware keyword analysis for phishing and credential-harvesting signals.
- * High-confidence phrases are always flagged; generic urgency words only when
- * combined with password fields to minimise false positives.
- * @param {string} text - Visible page text.
- * @param {boolean} hasPasswordFields - Whether the page has password inputs.
- * @returns {{penalty: number, reasons: string[]}}
- */
+/**
+
+ * Context-aware keyword analysis for phishing and credential-harvesting signals.
+
+ * High-confidence phrases are always flagged; generic urgency words only when
+
+ * combined with password fields to minimise false positives.
+
+ * @param {string} text - Visible page text.
+
+ * @param {boolean} hasPasswordFields - Whether the page has password inputs.
+
+ * @returns {{penalty: number, reasons: string[]}}
+
+ */
+
 function analyzeKeywords(text, hasPasswordFields) {
     let penalty = 0;
     const reasons = [];
