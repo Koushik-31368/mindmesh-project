@@ -46,13 +46,20 @@ const path = require("path");
 app.use("/popup", express.static(path.join(__dirname, "../extension")));
 
 // The route layer only formats responses and never depends on provider internals.
-/**
- * Sends a user-friendly JSON error for AI provider failures.
- * @param {object} res - Express response.
- * @param {string} responseKey - JSON key for the error message.
- * @param {Error} error - The thrown error.
- * @param {string} fallbackMessage - Default message.
- */
+/**
+
+ * Sends a user-friendly JSON error for AI provider failures.
+
+ * @param {object} res - Express response.
+
+ * @param {string} responseKey - JSON key for the error message.
+
+ * @param {Error} error - The thrown error.
+
+ * @param {string} fallbackMessage - Default message.
+
+ */
+
 function sendFriendlyAiError(res, responseKey, error, fallbackMessage) {
     if (error?.allProvidersFailed) {
         res.status(error?.statusCode || 503).json({
