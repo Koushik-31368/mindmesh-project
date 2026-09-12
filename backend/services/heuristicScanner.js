@@ -170,13 +170,20 @@ function analyzeUrl(url) {
  * Keyword analysis with context awareness.
  * Only flags keywords when they appear alongside credential harvesting indicators.
  */
-/**
- * Flags phishing phrases and credential-harvesting patterns.
- * Context-aware: generic urgency words only penalised near password fields.
- * @param {string} text
- * @param {boolean} hasPasswordFields
- * @returns {{penalty: number, reasons: string[]}}
- */
+/**
+
+ * Flags phishing phrases and credential-harvesting patterns.
+
+ * Context-aware: generic urgency words only penalised near password fields.
+
+ * @param {string} text
+
+ * @param {boolean} hasPasswordFields
+
+ * @returns {{penalty: number, reasons: string[]}}
+
+ */
+
 function analyzeKeywords(text, hasPasswordFields) {
     let penalty = 0;
     const reasons = [];
