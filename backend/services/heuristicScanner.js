@@ -76,6 +76,12 @@ const TRUSTED_DOMAINS = new Set([
 
  */
 
+/**
+ * Returns true if hostname belongs to the TRUSTED_DOMAINS allow-list.
+ * Handles subdomains; guards against lookalikes like fake-wikipedia.org.
+ * @param {string} hostname
+ * @returns {boolean}
+ */
 function isTrustedDomain(hostname) {
     const lower = hostname.toLowerCase();
 
