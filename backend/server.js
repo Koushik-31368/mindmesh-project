@@ -60,6 +60,14 @@ app.use("/popup", express.static(path.join(__dirname, "../extension")));
 
  */
 
+/**
+ * Sends a structured JSON error response for AI provider failures.
+ * Returns HTTP 503 when all providers are down, 500 for generic errors.
+ * @param {object} res             - Express response object.
+ * @param {string} responseKey     - JSON key to nest the message under.
+ * @param {Error}  error           - The thrown error object.
+ * @param {string} fallbackMessage - Default if error has no userMessage.
+ */
 function sendFriendlyAiError(res, responseKey, error, fallbackMessage) {
     if (error?.allProvidersFailed) {
         res.status(error?.statusCode || 503).json({
